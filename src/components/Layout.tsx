@@ -2,10 +2,10 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { AppShell, Avatar } from '@/design-system';
 import logoOscuro from '@/design-system/assets/oberlicht-logo-fondo-oscuro.png';
-import logoClaro from '@/design-system/assets/oberlicht-logo-fondo-claro.png';
 import { useAuth, ROLE_NAME, deptName } from '@/lib/auth';
 import { activeIdFor, navFor } from '@/lib/nav';
 import { NavIcon } from './Icon';
+import { InstallButton, ThemeToggle, ThemedLogo } from './AppControls';
 
 /** Marco de la plataforma: menú por rol/departamento y barra superior con el usuario. */
 export function Layout() {
@@ -31,7 +31,9 @@ export function Layout() {
         </button>
       }
       topbar={
-        <div className="flex w-full items-center justify-end gap-3">
+        <div className="flex w-full items-center justify-end gap-2 sm:gap-3">
+          <InstallButton compact />
+          <ThemeToggle />
           <div className="hidden text-right sm:block">
             <p className="text-base font-semibold leading-tight">{profile.full_name || profile.email}</p>
             <p className="text-sm text-fg-muted">
@@ -53,7 +55,7 @@ export function FullPageMessage({ title, children }: { title: string; children?:
   return (
     <div className="grid min-h-screen place-items-center bg-bg p-6">
       <div className="w-full max-w-lg rounded-xl border border-border bg-surface p-8 shadow-md">
-        <div className="mb-6"><img src={logoClaro} alt="Oberlicht" className="mx-auto h-14 w-auto" /></div>
+        <div className="mb-6"><ThemedLogo className="mx-auto h-14 w-auto" /></div>
         <h1 className="text-2xl font-extrabold">{title}</h1>
         <div className="mt-3 text-base text-fg-muted">{children}</div>
       </div>

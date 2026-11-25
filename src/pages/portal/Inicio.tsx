@@ -10,7 +10,7 @@ import { WEEKDAYS_LONG, dateShort, fullName, hhmm, isoDowMx, money0 } from '@/li
 import type { Announcement, Charge, Enrollment, GroupOccupancy } from '@/lib/types';
 import { Area, ErrorBox, Loading } from '@/components/common';
 import { FamilyFormModal } from '@/components/FamilyForms';
-import logoClaro from '@/design-system/assets/oberlicht-logo-fondo-claro.png';
+import { ThemedLogo } from '@/components/AppControls';
 
 /** Inicio del portal de familias. Si aún no hay familia registrada, guía el alta en un paso. */
 export default function PortalInicio() {
@@ -38,7 +38,7 @@ export default function PortalInicio() {
   if (!mine?.fam) {
     return (
       <div className="mx-auto max-w-xl py-8 text-center">
-        <img src={logoClaro} alt="Oberlicht" className="mx-auto mb-6 h-16 w-auto" />
+        <ThemedLogo className="mx-auto mb-6 h-16 w-auto" />
         <h1 className="text-3xl font-bold">¡Bienvenida, bienvenido!</h1>
         <p className="mt-3 text-lg text-fg-muted">Para inscribir a tus hijos, reservar y pagar en línea, primero registra a tu familia. Toma un par de minutos.</p>
         <Button size="xl" className="mt-8" icon={<UserPlus className="h-6 w-6" />} onClick={() => setCreating(true)}>Registrar a mi familia</Button>

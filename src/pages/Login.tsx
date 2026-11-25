@@ -2,11 +2,14 @@ import { useState, type FormEvent } from 'react';
 import { Alert, Button, Field, Input, Segmented, Checkbox } from '@/design-system';
 import logoOscuro from '@/design-system/assets/oberlicht-logo-fondo-oscuro.png';
 import logoClaro from '@/design-system/assets/oberlicht-logo-fondo-claro.png';
+import { InstallButton, ThemeToggle, ThemedLogo } from '@/components/AppControls';
+import { useTheme } from '@/lib/theme';
 import { supabase, friendlyError } from '@/lib/supabase';
 
 type Mode = 'entrar' | 'registro' | 'recuperar';
 
 export default function Login() {
+  const { theme } = useTheme();
   const [mode, setMode] = useState<Mode>('entrar');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -58,9 +61,10 @@ export default function Login() {
         <p className="text-sm text-white/60">Oberlicht · oberlicht.com.mx</p>
       </div>
 
-      <div className="flex items-center justify-center p-6">
+      <div className="relative flex items-center justify-center p-6">
+        <div className="absolute right-4 top-4 flex items-center gap-1"><InstallButton compact /><ThemeToggle /></div>
         <form onSubmit={submit} className="w-full max-w-md space-y-5">
-          <div className="lg:hidden"><img src={logoClaro} alt="Oberlicht" className="h-14 w-auto" /></div>
+          <div className="mt-10 lg:mt-0 lg:hidden"><img src={theme === 'dark' ? logoOscuro : logoClaro} alt="Oberlicht" className="h-14 w-auto" /></div>
           <div>
             <h2 className="text-3xl font-extrabold">
               {mode === 'entrar' ? 'Bienvenido' : mode === 'registro' ? 'Crea tu cuenta familiar' : 'Recupera tu contraseña'}
@@ -146,7 +150,7 @@ export function NewPassword() {
   return (
     <div className="grid min-h-screen place-items-center p-6">
       <form onSubmit={submit} className="w-full max-w-md space-y-5">
-        <img src={logoClaro} alt="Oberlicht" className="h-14 w-auto" />
+        <ThemedLogo />
         <h1 className="text-3xl font-extrabold">Crea tu contraseña nueva</h1>
         <Field label="Contraseña nueva" required hint="Mínimo 8 caracteres.">
           {(p) => <Input {...p} type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required />}

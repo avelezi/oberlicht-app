@@ -6,6 +6,7 @@ import { isConfigured } from '@/lib/supabase';
 import { Layout, FullPageMessage } from '@/components/Layout';
 import { Loading } from '@/components/common';
 import Login, { NewPassword } from '@/pages/Login';
+import Instalar from '@/pages/Instalar';
 
 const Consola = lazy(() => import('@/pages/staff/Consola'));
 const Entrada = lazy(() => import('@/pages/staff/Entrada'));
@@ -55,6 +56,7 @@ function Gate() {
     return (
       <Routes>
         <Route path="/nueva-contrasena" element={<NewPassword />} />
+        <Route path="/instalar" element={<Instalar />} />
         <Route path="*" element={<Login />} />
       </Routes>
     );
@@ -70,6 +72,7 @@ function Gate() {
     <Suspense fallback={<Loading />}>
       <Routes>
         <Route path="/nueva-contrasena" element={<NewPassword />} />
+        <Route path="/instalar" element={<Instalar />} />
         <Route element={<Layout />}>
           <Route index element={<Home />} />
           {/* Personal */}

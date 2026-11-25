@@ -5,3 +5,32 @@
 
 html, body, #root { height: 100%; }
 body { @apply bg-bg text-fg font-sans antialiased; font-size: 16px; }
+
+/* Celulares con muesca: respeta las zonas seguras cuando la app está instalada. */
+body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+
+/* Modo noche: los colores de estado (éxito, aviso, error, info) usan fondos suaves pensados para el día.
+   De noche se oscurecen y el texto se aclara para conservar contraste sin deslumbrar. */
+[data-theme='dark'] .bg-success-50 { background-color: rgb(31 157 76 / 0.16); }
+[data-theme='dark'] .bg-warning-50 { background-color: rgb(217 119 6 / 0.16); }
+[data-theme='dark'] .bg-danger-50  { background-color: rgb(220 38 38 / 0.16); }
+[data-theme='dark'] .bg-info-50    { background-color: rgb(1 154 222 / 0.16); }
+[data-theme='dark'] .bg-gold-50    { background-color: rgb(254 219 2 / 0.14); }
+[data-theme='dark'] .bg-brand-50   { background-color: rgb(219 141 207 / 0.14); }
+[data-theme='dark'] .bg-neutral-100 { background-color: rgb(255 255 255 / 0.08); }
+[data-theme='dark'] .border-success-100, [data-theme='dark'] .border-success-200 { border-color: rgb(31 157 76 / 0.35); }
+[data-theme='dark'] .border-warning-100 { border-color: rgb(217 119 6 / 0.35); }
+[data-theme='dark'] .border-danger-100, [data-theme='dark'] .border-danger-200 { border-color: rgb(220 38 38 / 0.4); }
+[data-theme='dark'] .border-info-100 { border-color: rgb(1 154 222 / 0.35); }
+[data-theme='dark'] .border-gold-100, [data-theme='dark'] .border-brand-100, [data-theme='dark'] .border-neutral-200 { border-color: rgb(255 255 255 / 0.14); }
+[data-theme='dark'] .text-success-700 { color: #6EDC95; }
+[data-theme='dark'] .text-warning-700 { color: #F8B95A; }
+[data-theme='dark'] .text-danger-700  { color: #F59A9A; }
+[data-theme='dark'] .text-info-700    { color: #6CCBF2; }
+[data-theme='dark'] .text-gold-800    { color: #FEDB02; }
+[data-theme='dark'] .text-brand-700   { color: #EBBBE3; }
+[data-theme='dark'] .text-neutral-700 { color: #C9BCD0; }
+[data-theme='dark'] .bg-surface\/95 { background-color: rgb(27 21 36 / 0.95); }
+[data-theme='dark'] .bg-white\/70 { background-color: rgb(255 255 255 / 0.12); }
+[data-theme='dark'] .bg-brand-100 { background-color: rgb(219 141 207 / 0.2); }
+[data-theme='dark'] .text-brand-800 { color: #EBBBE3; }
