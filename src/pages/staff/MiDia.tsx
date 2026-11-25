@@ -7,6 +7,7 @@ import { supabase, must } from '@/lib/supabase';
 import { hhmm, weekdayLong } from '@/lib/format';
 import type { AgendaItem, Announcement } from '@/lib/types';
 import { Area, CapacityBar, ErrorBox, Loading } from '@/components/common';
+import { AtRiskCard } from '@/components/AtRiskCard';
 
 /** Inicio del instructor: sus clases y sesiones de hoy, con acceso directo a pasar lista. */
 export default function MiDia() {
@@ -66,6 +67,7 @@ export default function MiDia() {
           })}
         </ul>
       )}
+      <AtRiskCard className="mt-6" />
     </>
   );
 }

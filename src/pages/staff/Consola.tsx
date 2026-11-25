@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, CalendarCheck, ClipboardCheck, FileText, ScanLine, TrendingUp, UserPlus, Users, Wallet } from 'lucide-react';
+import { AlertTriangle, CalendarCheck, ClipboardCheck, FileText, ScanLine, TrendingUp, UserPlus, Users, Wallet, BellRing, KeyRound, ShoppingCart, Wrench } from 'lucide-react';
+import { AtRiskCard } from '@/components/AtRiskCard';
 import { Alert, Button, Card, CardHeader, PageHeader, StatCard } from '@/design-system';
 import { useAuth, deptName } from '@/lib/auth';
 import { useAsync } from '@/lib/hooks';
@@ -160,6 +161,8 @@ export default function Consola() {
           )}
         </Card>
 
+        <AtRiskCard className="lg:col-span-2" />
+
         {isFrontOffice && (
           <Card className="lg:col-span-2">
             <CardHeader title="Accesos rápidos" />
@@ -169,6 +172,10 @@ export default function Consola() {
                 { l: 'Buscar familia', i: Users, h: '/socios' },
                 { l: 'Reservas de hoy', i: CalendarCheck, h: '/reservas' },
                 { l: 'Facturas', i: FileText, h: '/facturacion' },
+                { l: 'Punto de venta', i: ShoppingCart, h: '/venta' },
+                { l: 'Recordatorios', i: BellRing, h: '/recordatorios' },
+                { l: 'Casilleros', i: KeyRound, h: '/casilleros' },
+                { l: 'Reportar falla', i: Wrench, h: '/mantenimiento?tab=ordenes' },
               ].map((q) => (
                 <button key={q.l} onClick={() => nav(q.h)} className="flex min-h-[88px] flex-col items-center justify-center gap-2 rounded-lg border border-border bg-surface text-base font-semibold hover:bg-primary-soft">
                   <q.i className="h-6 w-6 text-primary" /> {q.l}

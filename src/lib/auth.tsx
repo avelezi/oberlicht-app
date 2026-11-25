@@ -80,6 +80,7 @@ export const ROLE_NAME: Record<AppRole, string> = {
   coordinador: 'Coordinación',
   coach: 'Instructor / coach',
   ventas: 'Barra y tienda',
+  mantenimiento: 'Mantenimiento',
   titular: 'Socio / familia',
 };
 

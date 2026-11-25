@@ -9,6 +9,7 @@ import { dateShort, rangeLabel } from '@/lib/format';
 import type { Cycle, DeptCode, Level } from '@/lib/types';
 import { Area, ErrorBox, Loading } from '@/components/common';
 import { REGIMENES } from '@/components/FamilyForms';
+import { APLICA } from './Cupones';
 
 type Settings = Record<string, Record<string, unknown>>;
 
@@ -19,10 +20,11 @@ export default function Configuracion() {
     <>
       <PageHeader title="Configuración" description="Ajustes que cambian poco. Todo cambio queda registrado." />
       <Tabs className="mb-6" value={tab} onChange={setTab} items={[
-        { id: 'club', label: 'Club y reglas' }, { id: 'fiscal', label: 'Facturación y pagos' }, { id: 'niveles', label: 'Niveles' }, { id: 'ciclos', label: 'Ciclos' },
+        { id: 'club', label: 'Club y reglas' }, { id: 'fiscal', label: 'Facturación y pagos' }, { id: 'modulos', label: 'Privadas, referidos y avisos' }, { id: 'niveles', label: 'Niveles' }, { id: 'ciclos', label: 'Ciclos' },
       ]} />
       {tab === 'club' && <SettingsForm keys={['club', 'cobranza', 'reservas']} />}
       {tab === 'fiscal' && <SettingsForm keys={['fiscal', 'procesador']} />}
+      {tab === 'modulos' && <SettingsForm keys={['privadas', 'referidos', 'recordatorios']} />}
       {tab === 'niveles' && <Levels />}
       {tab === 'ciclos' && <Cycles />}
     </>
@@ -37,9 +39,12 @@ const LABELS: Record<string, Record<string, [string, string?]>> = {
   },
   reservas: { horas_cancelacion: ['Horas mínimas para cancelar sin perder la sesión'], dias_anticipacion: ['Días de anticipación para reservar'] },
   fiscal: { rfc: ['RFC del club (emisor)'], razon_social: ['Razón social'], regimen_fiscal: ['Régimen fiscal'], cp: ['Código postal fiscal'], serie: ['Serie de facturas'], pac: ['PAC (proveedor de timbrado)', 'Ej. Facturama, SW Sapien, Finkok'] },
+  privadas: { precio: ['Precio por clase privada (MXN)', 'Se puede fijar uno distinto por instructor'], comision_pct: ['Comisión del instructor (%)'], duracion_min: ['Duración (minutos)'], comision_no_asistio: ['¿Se paga comisión si el alumno no asiste?'] },
+  referidos: { tipo: ['Tipo de recompensa'], valor: ['Valor de la recompensa', 'Monto en MXN o porcentaje'], aplica: ['Aplica a'], vigencia_dias: ['Días de vigencia del cupón'] },
+  recordatorios: { dias_antes_pago: ['Avisar pagos que vencen en los próximos (días)'], dias_inactividad: ['Avisar cuando un alumno lleva sin venir (días)'], dias_aviso_casillero: ['Avisar casilleros que vencen en (días)'], whatsapp_proveedor: ['Proveedor de WhatsApp Business', 'Para envío automático, cuando se contrate'], correo_proveedor: ['Proveedor de correo masivo'] },
   procesador: { proveedor: ['Procesador de pagos', 'Openpay, Conekta, Stripe MX o Mercado Pago'], modo: ['Modo'] },
 };
-const TITLES: Record<string, string> = { club: 'Datos del club', cobranza: 'Reglas de cobro', reservas: 'Reglas de reservas', fiscal: 'Datos fiscales (CFDI 4.0)', procesador: 'Cobro con tarjeta' };
+const TITLES: Record<string, string> = { club: 'Datos del club', cobranza: 'Reglas de cobro', reservas: 'Reglas de reservas', fiscal: 'Datos fiscales (CFDI 4.0)', procesador: 'Cobro con tarjeta', privadas: 'Clases privadas', referidos: 'Recompensa por recomendar', recordatorios: 'Recordatorios' };
 
 function SettingsForm({ keys }: { keys: string[] }) {
   const { data, error, reload } = useAsync(async () => {
@@ -67,6 +72,9 @@ function SettingsForm({ keys }: { keys: string[] }) {
             {Object.entries(LABELS[k] ?? {}).map(([f, [label, hint]]) => {
               const v = s[k]?.[f];
               if (f === 'regimen_fiscal') return <Field key={f} label={label}>{(p) => <Select {...p} value={String(v ?? '')} onChange={(e) => set(k, f, e.target.value)}>{REGIMENES.map(([c, l]) => <option key={c} value={c}>{l}</option>)}</Select>}</Field>;
+              if (typeof v === 'boolean') return <div key={f} className="sm:col-span-2"><Switch checked={v} onChange={(x) => set(k, f, x)} label={label} /></div>;
+              if (k === 'referidos' && f === 'tipo') return <Field key={f} label={label}>{(p) => <Select {...p} value={String(v ?? 'monto')} onChange={(e) => set(k, f, e.target.value)}><option value="monto">Monto fijo</option><option value="porcentaje">Porcentaje</option></Select>}</Field>;
+              if (k === 'referidos' && f === 'aplica') return <Field key={f} label={label}>{(p) => <Select {...p} value={String(v ?? 'mensualidad')} onChange={(e) => set(k, f, e.target.value)}>{Object.entries(APLICA).map(([c, l]) => <option key={c} value={c}>{l}</option>)}</Select>}</Field>;
               if (f === 'modo') return <Field key={f} label={label}>{(p) => <Select {...p} value={String(v ?? 'pruebas')} onChange={(e) => set(k, f, e.target.value)}><option value="pruebas">Pruebas</option><option value="produccion">Producción</option></Select>}</Field>;
               const num = typeof v === 'number';
               return <Field key={f} label={label} hint={hint}>{(p) => <Input {...p} type={num ? 'number' : 'text'} value={String(v ?? '')} onChange={(e) => set(k, f, num ? Number(e.target.value) : e.target.value)} />}</Field>;

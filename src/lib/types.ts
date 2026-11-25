@@ -1,10 +1,10 @@
 // Tipos de la base de datos de Oberlicht (espejo de supabase/migrations).
 
-export type AppRole = 'direccion' | 'administracion' | 'recepcion' | 'coordinador' | 'coach' | 'ventas' | 'titular';
+export type AppRole = 'direccion' | 'administracion' | 'recepcion' | 'coordinador' | 'coach' | 'ventas' | 'mantenimiento' | 'titular';
 
 export type DeptCode =
   | 'direccion' | 'administracion' | 'recepcion'
-  | 'natacion' | 'oberfit' | 'ballet' | 'gimnasia' | 'terapia' | 'nutricion' | 'cafeteria' | 'tienda';
+  | 'natacion' | 'oberfit' | 'ballet' | 'gimnasia' | 'terapia' | 'nutricion' | 'cafeteria' | 'tienda' | 'mantenimiento';
 
 export interface Department { code: DeptCode; name: string; is_area: boolean; color: string | null; sort_order: number }
 

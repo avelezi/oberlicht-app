@@ -29,6 +29,7 @@ export default function Familia() {
   const [membership, setMembership] = useState<string | null>(null);
   const [note, setNote] = useState<Member | null>(null);
   const [move, setMove] = useState<Enrollment | null>(null);
+  const [coupon, setCoupon] = useState<{ charge: Charge; code: string } | null>(null);
   const cobrar = params.get('cobrar') === '1';
   const { busy, run } = useAction();
 
@@ -214,6 +215,7 @@ export default function Familia() {
               { key: 'd', header: 'Vence', cell: (c) => dateShort(c.due_date), hideOnMobile: true },
               { key: 'a', header: 'Importe', align: 'right', cell: (c) => <span className="font-semibold ob-num">{money(c.amount)}</span> },
               { key: 's', header: 'Estado', cell: (c) => <ChargeBadge c={c} /> },
+              { key: 'x', header: '', align: 'right', cell: (c) => (c.status === 'pendiente' || c.status === 'vencido') && Number(c.amount) > 0 ? <Button size="sm" variant="ghost" onClick={() => setCoupon({ charge: c, code: '' })}>Aplicar cupón</Button> : null },
             ]} />
           </Section>
           <Section title="Pagos recibidos">
@@ -268,6 +270,17 @@ export default function Familia() {
       <MembershipModal memberId={membership} onClose={() => setMembership(null)} cat={cat} onDone={reload} />
       <NoteModal member={note} onClose={() => setNote(null)} areas={myAreas} onDone={reload} />
       <MoveModal enrollment={move} onClose={() => setMove(null)} cat={cat} onDone={reload} />
+      <Modal open={!!coupon} onClose={() => setCoupon(null)} title={`Aplicar cupón a: ${coupon?.charge.concept ?? ''}`}
+        footer={<ConfirmFooter onCancel={() => setCoupon(null)} confirmLabel="Aplicar" loading={busy} onConfirm={async () => {
+          if (!coupon?.code.trim()) return;
+          const ok = await run(() => must(supabase.rpc('aplicar_cupon_cargo', { p_charge: coupon.charge.id, p_code: coupon.code.trim() })), 'Descuento aplicado');
+          if (ok) { setCoupon(null); reload(); }
+        }} />}>
+        {coupon && <div className="grid gap-3">
+          <p className="text-base">Importe actual: <span className="font-semibold ob-num">{money(coupon.charge.amount)}</span></p>
+          <Field label="Código del cupón">{(p) => <Input {...p} className="font-mono uppercase" autoFocus value={coupon.code} onChange={(e) => setCoupon({ ...coupon, code: e.target.value.toUpperCase() })} />}</Field>
+        </div>}
+      </Modal>
     </>
   );
 }

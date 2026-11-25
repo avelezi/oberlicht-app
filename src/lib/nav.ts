@@ -23,6 +23,12 @@ const I = {
   personal:    { id: 'personal', label: 'Personal y permisos', icon: 'IdCard', href: '/personal' },
   ajustes:     { id: 'ajustes', label: 'Configuración', icon: 'Settings', href: '/configuracion' },
   ventas:      { id: 'ventas', label: 'Punto de venta', icon: 'ShoppingCart', href: '/venta' },
+  productos:   { id: 'productos', label: 'Productos e inventario', icon: 'Package', href: '/productos' },
+  cupones:     { id: 'cupones', label: 'Promociones y referidos', icon: 'TicketPercent', href: '/cupones' },
+  privadas:    { id: 'privadas', label: 'Clases privadas', icon: 'UserCheck', href: '/privadas' },
+  casilleros:  { id: 'casilleros', label: 'Casilleros', icon: 'KeyRound', href: '/casilleros' },
+  recordatorios: { id: 'recordatorios', label: 'Recordatorios', icon: 'BellRing', href: '/recordatorios' },
+  mant:        { id: 'mant', label: 'Mantenimiento', icon: 'Wrench', href: '/mantenimiento' },
   misclases:   { id: 'misclases', label: 'Clases e inscripciones', icon: 'CalendarDays', href: '/mis-clases' },
   misreservas: { id: 'reservas', label: 'Reservar', icon: 'CalendarCheck', href: '/reservas' },
   mispagos:    { id: 'mispagos', label: 'Pagos y facturas', icon: 'Receipt', href: '/mis-pagos' },
@@ -32,37 +38,41 @@ const I = {
 const BOOKABLE: DeptCode[] = ['oberfit', 'terapia', 'nutricion', 'natacion'];
 
 export function navFor(role: AppRole, depts: DeptCode[]): NavGroup[] {
+  const book = depts.some((d) => BOOKABLE.includes(d)) ? [I.reservas] : [];
+  const pool = depts.includes('natacion') || depts.includes('mantenimiento') ? [I.mant] : [];
   switch (role) {
     case 'direccion':
       return [
         { items: [I.consola] },
-        { label: 'Operación', items: [I.entrada, I.socios, I.niveles, I.clases, I.reservas, I.asistencia] },
-        { label: 'Dinero', items: [I.cobros, I.facturas, I.planes] },
-        { label: 'Club', items: [I.analiticas, I.reportes, I.avisos, I.personal, I.ajustes] },
+        { label: 'Operación', items: [I.entrada, I.socios, I.niveles, I.clases, I.reservas, I.asistencia, I.privadas, I.casilleros] },
+        { label: 'Dinero', items: [I.cobros, I.facturas, I.planes, I.ventas, I.productos, I.cupones] },
+        { label: 'Club', items: [I.analiticas, I.recordatorios, I.mant, I.reportes, I.avisos, I.personal, I.ajustes] },
       ];
     case 'administracion':
       return [
         { items: [I.consola] },
-        { label: 'Dinero', items: [I.cobros, I.facturas, I.planes] },
-        { label: 'Socios', items: [I.socios, I.niveles] },
-        { label: 'Club', items: [I.analiticas, I.reportes, I.avisos, I.personal, I.ajustes] },
+        { label: 'Dinero', items: [I.cobros, I.facturas, I.planes, I.ventas, I.productos, I.cupones] },
+        { label: 'Socios', items: [I.socios, I.niveles, I.privadas, I.casilleros, I.recordatorios] },
+        { label: 'Club', items: [I.analiticas, I.mant, I.reportes, I.avisos, I.personal, I.ajustes] },
       ];
     case 'recepcion':
       return [
         { items: [I.entrada, I.inicio] },
-        { label: 'Atención', items: [I.socios, I.cobros, I.reservas] },
-        { label: 'Consulta', items: [I.niveles, I.clases, I.avisos] },
+        { label: 'Atención', items: [I.socios, I.cobros, I.reservas, I.ventas, I.privadas, I.casilleros, I.recordatorios] },
+        { label: 'Consulta', items: [I.niveles, I.clases, I.avisos, I.mant] },
       ];
     case 'coordinador':
       return [
         { items: [I.inicio] },
-        { label: 'Mi departamento', items: [I.niveles, I.clases, I.asistencia, ...(depts.some((d) => BOOKABLE.includes(d)) ? [I.reservas] : [])] },
-        { label: 'Seguimiento', items: [I.socios, I.analiticas, I.avisos, I.reportes] },
+        { label: 'Mi departamento', items: [I.niveles, I.clases, I.asistencia, ...book, I.privadas] },
+        { label: 'Seguimiento', items: [I.socios, I.recordatorios, I.analiticas, I.avisos, I.reportes, I.mant] },
       ];
     case 'coach':
-      return [{ items: [I.midia, I.asistencia, I.clases, ...(depts.some((d) => BOOKABLE.includes(d)) ? [I.reservas] : [])] }];
+      return [{ items: [I.midia, I.asistencia, I.clases, ...book, I.privadas, ...pool] }];
     case 'ventas':
-      return [{ items: [I.ventas, I.avisos] }];
+      return [{ items: [I.ventas, I.productos, I.avisos] }];
+    case 'mantenimiento':
+      return [{ items: [I.mant, I.avisos] }];
     case 'titular':
     default:
       return [{ items: [I.inicio, I.misclases, I.misreservas, I.mispagos, I.micuenta] }];
@@ -71,7 +81,7 @@ export function navFor(role: AppRole, depts: DeptCode[]): NavGroup[] {
 
 /** Pantalla con la que abre cada rol: su tarea más frecuente. */
 export const HOME_BY_ROLE: Record<AppRole, string> = {
-  direccion: '/', administracion: '/', recepcion: '/entrada', coordinador: '/', coach: '/', ventas: '/venta', titular: '/',
+  direccion: '/', administracion: '/', recepcion: '/entrada', coordinador: '/', coach: '/', ventas: '/venta', mantenimiento: '/mantenimiento', titular: '/',
 };
 
 export function activeIdFor(pathname: string, groups: NavGroup[]): string {

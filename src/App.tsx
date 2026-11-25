@@ -27,6 +27,12 @@ const Configuracion = lazy(() => import('@/pages/staff/Configuracion'));
 const MiDia = lazy(() => import('@/pages/staff/MiDia'));
 const Venta = lazy(() => import('@/pages/staff/Venta'));
 const Analiticas = lazy(() => import('@/pages/staff/Analiticas'));
+const Mantenimiento = lazy(() => import('@/pages/staff/Mantenimiento'));
+const Recordatorios = lazy(() => import('@/pages/staff/Recordatorios'));
+const Productos = lazy(() => import('@/pages/staff/Productos'));
+const Cupones = lazy(() => import('@/pages/staff/Cupones'));
+const Privadas = lazy(() => import('@/pages/staff/Privadas'));
+const Casilleros = lazy(() => import('@/pages/staff/Casilleros'));
 const PortalInicio = lazy(() => import('@/pages/portal/Inicio'));
 const PortalClases = lazy(() => import('@/pages/portal/MisClases'));
 const PortalReservas = lazy(() => import('@/pages/portal/Reservar'));
@@ -39,6 +45,7 @@ function Home() {
     case 'direccion': case 'administracion': case 'recepcion': case 'coordinador': return <Consola />;
     case 'coach': return <MiDia />;
     case 'ventas': return <Navigate to="/venta" replace />;
+    case 'mantenimiento': return <Navigate to="/mantenimiento" replace />;
     default: return <PortalInicio />;
   }
 }
@@ -68,6 +75,7 @@ function Gate() {
   const staff = (el: ReactElement) => (isStaff ? el : <Navigate to="/" replace />);
   const front = (el: ReactElement) => (isFrontOffice ? el : <Navigate to="/" replace />);
   const manager = (el: ReactElement) => (isManager ? el : <Navigate to="/" replace />);
+  const seller = (el: ReactElement) => (isFrontOffice || profile.role === 'ventas' ? el : <Navigate to="/" replace />);
 
   return (
     <Suspense fallback={<Loading />}>
@@ -91,7 +99,13 @@ function Gate() {
           <Route path="/avisos" element={staff(<Avisos />)} />
           <Route path="/personal" element={manager(<Personal />)} />
           <Route path="/configuracion" element={manager(<Configuracion />)} />
-          <Route path="/venta" element={staff(<Venta />)} />
+          <Route path="/venta" element={seller(<Venta />)} />
+          <Route path="/productos" element={(isManager || profile.role === 'ventas') ? <Productos /> : <Navigate to="/" replace />} />
+          <Route path="/cupones" element={front(<Cupones />)} />
+          <Route path="/privadas" element={staff(<Privadas />)} />
+          <Route path="/casilleros" element={front(<Casilleros />)} />
+          <Route path="/recordatorios" element={staff(<Recordatorios />)} />
+          <Route path="/mantenimiento" element={staff(<Mantenimiento />)} />
           <Route path="/analiticas" element={(isManager || profile.role === 'coordinador') ? <Analiticas /> : <Navigate to="/" replace />} />
           {/* Reservas: personal o familias */}
           <Route path="/reservas" element={isStaff ? <Reservas /> : <PortalReservas />} />
