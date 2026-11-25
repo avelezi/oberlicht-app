@@ -8,7 +8,7 @@ import { useAuth, deptName } from '@/lib/auth';
 import { useAction, useAsync } from '@/lib/hooks';
 import { supabase, must } from '@/lib/supabase';
 import { useCatalog, staffName, type Catalog } from '@/lib/catalog';
-import { ageLabel, dateLong, dateShort, dateTime, daysLabel, fullName, hhmm, money, money0, todayMx } from '@/lib/format';
+import { ageLabel, dateLong, dateShort, dateTime, daysLabel, fullName, hhmm, money, money0, seniority, todayMx } from '@/lib/format';
 import type { Charge, DeptCode, Enrollment, Family, Invoice, Member, Membership, Payment } from '@/lib/types';
 import { Area, ChargeBadge, EnrollmentBadge, ErrorBox, HealthFlag, Info, InvoiceBadge, Loading, Section } from '@/components/common';
 import { CobrarModal, FamilyFormModal, InscribirModal, MemberFormModal, REGIMENES } from '@/components/FamilyForms';
@@ -81,7 +81,7 @@ export default function Familia() {
       <PageHeader
         breadcrumb={<button onClick={() => nav('/socios')} className="inline-flex items-center gap-1 text-sm text-fg-muted hover:text-primary"><ArrowLeft className="h-4 w-4" /> Socios y familias</button>}
         title={fam.name}
-        description={<>Familia #{fam.number} · {fam.phone ?? 'sin celular'}{fam.email ? ` · ${fam.email}` : ''}</>}
+        description={<>Familia #{fam.number} · Socios desde {dateShort(fam.member_since ?? fam.created_at)} ({seniority(fam.member_since ?? fam.created_at)}) · {fam.phone ?? 'sin celular'}{fam.email ? ` · ${fam.email}` : ''}</>}
         actions={
           <>
             {isFrontOffice && <Button variant="secondary" icon={<Pencil className="h-5 w-5" />} onClick={() => setEditFam(true)}>Editar datos</Button>}
@@ -117,6 +117,7 @@ export default function Familia() {
                       {!m.active && <StatusBadge status="inactivo" size="sm" />}
                     </div>
                     <p className="text-base text-fg-muted">{ageLabel(m.birthdate)}{m.birthdate ? ` · nació el ${dateLong(m.birthdate)}` : ''}</p>
+                    {(m.member_since || m.created_at) && <p className="text-sm text-fg-muted">Antigüedad: {seniority(m.member_since ?? m.created_at)} · desde {dateShort(m.member_since ?? m.created_at)}</p>}
                   </div>
                 </div>
                 <div className="mt-3 space-y-2">

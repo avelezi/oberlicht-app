@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, UserPlus } from 'lucide-react';
+import { FileUp, Search, UserPlus } from 'lucide-react';
 import { Button, Card, Input, PageHeader, Segmented, StatusBadge, Table, type Column } from '@/design-system';
 import { useAuth } from '@/lib/auth';
 import { useAsync, useDebounced } from '@/lib/hooks';
@@ -9,6 +9,8 @@ import { money0 } from '@/lib/format';
 import type { Family, FamilyBalance } from '@/lib/types';
 import { ErrorBox, Loading } from '@/components/common';
 import { FamilyFormModal } from '@/components/FamilyForms';
+import { ImportModal } from '@/components/ImportModal';
+import { SOCIOS_FIELDS, SOCIOS_SAMPLE, SOCIOS_TOTALS } from '@/lib/importDefs';
 
 type Row = Family & { members: { id: string; first_name: string; last_name: string; active: boolean }[]; balance?: FamilyBalance };
 
@@ -21,6 +23,7 @@ export default function Socios() {
   const [filter, setFilter] = useState('activas');
   const dq = useDebounced(q.trim(), 250);
   const creating = params.get('nueva') === '1';
+  const [importing, setImporting] = useState(false);
 
   const { data, error, loading, reload } = useAsync(async () => {
     let query = supabase.from('families').select('*, members(id, first_name, last_name, active)').order('name').limit(200);
@@ -66,7 +69,13 @@ export default function Socios() {
   return (
     <>
       <PageHeader title="Socios y familias" description="Cada familia tiene un titular que paga y sus miembros (hijos, pareja)."
-        actions={isFrontOffice && <Button icon={<UserPlus className="h-5 w-5" />} onClick={() => setParams({ nueva: '1' })}>Nueva familia</Button>} />
+        actions={isFrontOffice && <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" icon={<FileUp className="h-5 w-5" />} onClick={() => setImporting(true)}>Importar Excel o PDF</Button>
+          <Button icon={<UserPlus className="h-5 w-5" />} onClick={() => setParams({ nueva: '1' })}>Nueva familia</Button>
+        </div>} />
+      <ImportModal open={importing} onClose={() => setImporting(false)} onDone={reload} title="Importar socios y familias" rpc="importar_socios"
+        intro="Sube el listado del sistema anterior (Excel, CSV o PDF con tabla). Agrupamos a los socios por número de familia, o por nombre de familia si no hay número, y guardamos su fecha de alta para calcular la antigüedad. Si vuelves a importar el mismo archivo no se duplica: se actualizan los datos que falten."
+        fields={SOCIOS_FIELDS} sample={SOCIOS_SAMPLE} templateName="plantilla-socios-oberlicht.xlsx" totals={SOCIOS_TOTALS} />
       <Card className="mb-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <div className="flex-1">

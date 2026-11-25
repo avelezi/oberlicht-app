@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, CheckCircle2, Wallet } from 'lucide-react';
+import { Search, CheckCircle2, FileUp, LogOut, Wallet } from 'lucide-react';
 import { Alert, Avatar, Button, Card, EmptyState, Input, PageHeader, Select } from '@/design-system';
 import { useAuth } from '@/lib/auth';
 import { useAction, useAsync, useDebounced } from '@/lib/hooks';
@@ -8,6 +8,8 @@ import { supabase, must } from '@/lib/supabase';
 import { ageLabel, fullName, money0 } from '@/lib/format';
 import type { DeptCode, FamilyBalance, Member } from '@/lib/types';
 import { Area, HealthFlag, Loading } from '@/components/common';
+import { ImportModal } from '@/components/ImportModal';
+import { VISITAS_FIELDS, VISITAS_SAMPLE, VISITAS_TOTALS } from '@/lib/importDefs';
 
 type Row = Member & { families: { id: string; number: number; name: string; status: string } | null };
 
@@ -20,6 +22,8 @@ export default function Entrada() {
   const [area, setArea] = useState<DeptCode>('oberfit');
   const [done, setDone] = useState<Record<string, boolean>>({});
   const { busy, run } = useAction();
+  const [importing, setImporting] = useState(false);
+  const [out, setOut] = useState<Record<string, boolean>>({});
 
   const { data, loading } = useAsync(async () => {
     if (dq.length < 2) return { rows: [] as Row[], balances: [] as FamilyBalance[] };
@@ -39,11 +43,20 @@ export default function Entrada() {
     if (r) setDone((d) => ({ ...d, [m.id]: true }));
   }
 
+  async function checkOut(m: Row) {
+    const r = await run(() => must(supabase.rpc('registrar_salida', { p_member: m.id })), `Salida registrada: ${m.first_name}`);
+    if (r) setOut((d) => ({ ...d, [m.id]: true }));
+  }
+
   const areas = allDepartments.filter((d) => d.is_area && myAreas.includes(d.code));
 
   return (
     <>
-      <PageHeader title="Registrar entrada" description="Escribe el nombre o el número de familia de quien llega." />
+      <PageHeader title="Registrar entrada" description="Escribe el nombre o el número de familia de quien llega o se va."
+        actions={<Button variant="secondary" icon={<FileUp className="h-5 w-5" />} onClick={() => setImporting(true)}>Importar entradas y salidas</Button>} />
+      <ImportModal open={importing} onClose={() => setImporting(false)} title="Importar entradas y salidas" rpc="importar_visitas" chunk={500}
+        intro="Sube el reporte de accesos del sistema de check-in actual (Excel, CSV o PDF). Buscamos a cada persona por su ID del sistema anterior, por número de familia y nombre, o por nombre completo. Los registros repetidos se ignoran, así que puedes subir el mismo periodo más de una vez. Cuando sepamos si ese sistema tiene API, lo conectamos para que llegue solo."
+        fields={VISITAS_FIELDS} sample={VISITAS_SAMPLE} templateName="plantilla-entradas-oberlicht.xlsx" totals={VISITAS_TOTALS} />
       <Card className="mb-6">
         <div className="grid gap-3 md:grid-cols-[1fr_240px]">
           <Input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ej. Sofía, López o 1024"
@@ -92,6 +105,9 @@ export default function Entrada() {
                   ) : (
                     <Button size="lg" loading={busy} onClick={() => checkIn(m)} disabled={!!blocked}>Registrar entrada</Button>
                   )}
+                  {out[m.id]
+                    ? <Button variant="ghost" size="lg" disabled>Salida registrada</Button>
+                    : <Button variant="secondary" size="lg" icon={<LogOut className="h-5 w-5" />} loading={busy} onClick={() => checkOut(m)}>Registrar salida</Button>}
                   {owes && <Button variant="secondary" size="lg" icon={<Wallet className="h-5 w-5" />} onClick={() => nav(`/familias/${m.family_id}?cobrar=1`)}>Cobrar</Button>}
                   <Button variant="ghost" size="lg" onClick={() => nav(`/familias/${m.family_id}`)}>Ver expediente</Button>
                 </div>

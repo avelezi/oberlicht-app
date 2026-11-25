@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Checkbox, ConfirmFooter, Field, Input, Modal, Select, Textarea } from '@/design-system';
 import { supabase, must } from '@/lib/supabase';
 import { useAction } from '@/lib/hooks';
-import { ageLabel, ageYears, daysLabel, hhmm, money, rangeLabel, todayMx } from '@/lib/format';
+import { ageLabel, ageYears, daysLabel, hhmm, money, rangeLabel, seniority, todayMx } from '@/lib/format';
 import type { Catalog } from '@/lib/catalog';
 import { staffName } from '@/lib/catalog';
 import type { Charge, DeptCode, Family, Member } from '@/lib/types';
@@ -138,6 +138,7 @@ export function MemberFormModal({ open, onClose, familyId, member, onSaved, port
       emergency_name: m.emergency_name || null, emergency_phone: m.emergency_phone || null,
       waiver_signed_at: waiver ? (member?.waiver_signed_at ?? new Date().toISOString()) : null,
       waiver_signed_by: waiver ? waiverName.trim() : null,
+      ...(portal ? {} : { member_since: m.member_since || null }),
     };
     if (member) await must(supabase.from('members').update(payload).eq('id', member.id));
     else await must(supabase.from('members').insert({ ...payload, family_id: familyId }));
@@ -153,6 +154,9 @@ export function MemberFormModal({ open, onClose, familyId, member, onSaved, port
         <Field label="Fecha de nacimiento" required hint={m.birthdate ? `Edad: ${ageLabel(m.birthdate)}` : 'Con ella se calcula el nivel que le corresponde.'}>
           {(p) => <Input {...p} type="date" max={todayMx()} value={m.birthdate ?? ''} onChange={(e) => set('birthdate', e.target.value)} />}
         </Field>
+        {!portal && <Field label="Socio desde" hint={m.member_since ? `Antigüedad: ${seniority(m.member_since)}` : 'Fecha de alta en el club (si viene del sistema anterior)'}>
+          {(p) => <Input {...p} type="date" max={todayMx()} value={m.member_since ?? ''} onChange={(e) => set('member_since', e.target.value)} />}
+        </Field>}
         <Field label="Sexo">
           {(p) => <Select {...p} value={m.gender ?? ''} onChange={(e) => set('gender', e.target.value || null)}>
             <option value="">Prefiero no decir</option><option value="F">Femenino</option><option value="M">Masculino</option><option value="X">Otro</option>

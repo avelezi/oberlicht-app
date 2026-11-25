@@ -6,8 +6,6 @@ import { friendlyError } from '@/lib/supabase';
 import { downloadCsv } from '@/lib/format';
 import { autoMap, buildRows, downloadTemplate, readFile, type ImportField, type Sheet } from '@/lib/importer';
 
-export interface ImportResult { [k: string]: unknown; errores?: { fila: number; dato: string; motivo: string }[] }
-
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -32,7 +30,7 @@ export function ImportModal({ open, onClose, title, intro, fields, rpc, template
   const [step, setStep] = useState<'file' | 'map' | 'run' | 'done'>('file');
   const [err, setErr] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<Record<string, number> & { errores: { fila: number; dato: string; motivo: string }[] } | null>(null);
+  const [result, setResult] = useState<{ n: Record<string, number>; errores: { fila: number; dato: string; motivo: string }[] } | null>(null);
   const [reading, setReading] = useState(false);
 
   function reset() {
@@ -67,7 +65,7 @@ export function ImportModal({ open, onClose, title, intro, fields, rpc, template
         for (const e of (r.errores as typeof errores) ?? []) errores.push({ ...e, fila: e.fila + i });
         setProgress(Math.min(rows.length, i + chunk));
       }
-      setResult({ ...acc, errores }); setStep('done'); onDone?.();
+      setResult({ n: acc, errores }); setStep('done'); onDone?.();
     } catch (e) {
       setErr(friendlyError(e)); setStep('map');
     }
@@ -140,7 +138,7 @@ export function ImportModal({ open, onClose, title, intro, fields, rpc, template
           <div className="flex items-center gap-3"><CheckCircle2 className="h-8 w-8 text-success-600" /><p className="text-lg font-semibold">Importación terminada</p></div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {Object.entries(totals).map(([k, l]) => (
-              <div key={k} className="rounded-lg border border-border p-3"><p className="text-2xl font-bold ob-num">{result[k] ?? 0}</p><p className="text-sm text-fg-muted">{l}</p></div>
+              <div key={k} className="rounded-lg border border-border p-3"><p className="text-2xl font-bold ob-num">{result.n[k] ?? 0}</p><p className="text-sm text-fg-muted">{l}</p></div>
             ))}
           </div>
           {result.errores.length > 0 && (

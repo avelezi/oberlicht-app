@@ -20,6 +20,7 @@ export interface Family {
   uso_cfdi: string | null; wants_invoice: boolean;
   card_last4: string | null; card_brand: string | null;
   status: 'activa' | 'inactiva' | 'bloqueada'; notes: string | null; created_at: string;
+  member_since?: string | null; external_id?: string | null;
 }
 
 export interface Member {
@@ -27,6 +28,7 @@ export interface Member {
   gender: 'F' | 'M' | 'X' | null; is_titular: boolean; email: string | null; phone: string | null;
   allergies: string | null; medical_notes: string | null; emergency_name: string | null; emergency_phone: string | null;
   waiver_signed_at: string | null; waiver_signed_by: string | null; photo_url: string | null; active: boolean;
+  member_since?: string | null; external_id?: string | null; created_at?: string;
 }
 
 export interface Plan {

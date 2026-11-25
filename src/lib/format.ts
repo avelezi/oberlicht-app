@@ -101,3 +101,16 @@ export function downloadCsv(name: string, rows: Record<string, unknown>[]) {
   a.click();
   URL.revokeObjectURL(a.href);
 }
+
+/** Antigüedad legible: "3 años y 2 meses", "5 meses", "Nuevo". */
+export function seniority(since: string | null | undefined): string {
+  if (!since) return '';
+  const a = new Date(since.slice(0, 10) + 'T12:00:00'); const b = new Date(todayMx() + 'T12:00:00');
+  let months = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+  if (b.getDate() < a.getDate()) months -= 1;
+  if (months < 1) return 'Nuevo';
+  const y = Math.floor(months / 12), m = months % 12;
+  const ys = y ? `${y} ${y === 1 ? 'año' : 'años'}` : '';
+  const ms = m ? `${m} ${m === 1 ? 'mes' : 'meses'}` : '';
+  return [ys, ms].filter(Boolean).join(' y ');
+}

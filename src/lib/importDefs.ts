@@ -17,7 +17,7 @@ export const SOCIOS_FIELDS: ImportField[] = [
   { key: 'rfc', label: 'RFC', synonyms: ['rfc', 'tax id'] },
 ];
 
-export const SOCIOS_SAMPLE = [
+export const SOCIOS_SAMPLE: Record<string, string>[] = [
   { nombre: 'Laura', apellidos: 'Martínez Ruiz', familia: 'Familia Martínez', numero_familia: 'PG-0151', id_externo: 'S-1001', titular: 'Sí', fecha_nacimiento: '12/03/1986', socio_desde: '15/01/2019', celular: '5512345678', correo: 'laura@ejemplo.com', genero: 'F' },
   { nombre: 'Mateo', apellidos: 'Martínez Ruiz', familia: 'Familia Martínez', numero_familia: 'PG-0151', id_externo: 'S-1002', titular: 'No', fecha_nacimiento: '05/09/2016', socio_desde: '15/01/2019', alergias: 'Penicilina', genero: 'M' },
 ];
@@ -33,7 +33,7 @@ export const VISITAS_FIELDS: ImportField[] = [
   { key: 'area', label: 'Área', synonyms: ['area', 'departamento', 'zona', 'servicio', 'actividad', 'puerta'], hint: 'natación, oberfit, ballet…' },
 ];
 
-export const VISITAS_SAMPLE = [
+export const VISITAS_SAMPLE: Record<string, string>[] = [
   { entrada: '2026-11-20 07:05', salida: '2026-11-20 08:20', ref: 'S-1001', nombre: 'Laura Martínez Ruiz', area: 'oberfit' },
   { entrada: '2026-11-20 17:00', salida: '2026-11-20 17:55', ref: 'S-1002', nombre: 'Mateo Martínez Ruiz', area: 'natacion' },
 ];
