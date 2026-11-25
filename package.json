@@ -13,9 +13,11 @@
     "@supabase/supabase-js": "^2.119.2",
     "clsx": "^2.1.1",
     "lucide-react": "^1.80.0",
+    "pdfjs-dist": "^4.10.38",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-router-dom": "^7.18.7"
+    "react-router-dom": "^7.18.7",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
