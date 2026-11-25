@@ -18,6 +18,7 @@ const I = {
   facturas:    { id: 'facturas', label: 'Facturación (CFDI)', icon: 'FileText', href: '/facturacion' },
   planes:      { id: 'planes', label: 'Planes y precios', icon: 'Tags', href: '/planes' },
   reportes:    { id: 'reportes', label: 'Reportes', icon: 'BarChart3', href: '/reportes' },
+  analiticas:  { id: 'analiticas', label: 'Analíticas', icon: 'LineChart', href: '/analiticas' },
   avisos:      { id: 'avisos', label: 'Avisos', icon: 'Megaphone', href: '/avisos' },
   personal:    { id: 'personal', label: 'Personal y permisos', icon: 'IdCard', href: '/personal' },
   ajustes:     { id: 'ajustes', label: 'Configuración', icon: 'Settings', href: '/configuracion' },
@@ -37,14 +38,14 @@ export function navFor(role: AppRole, depts: DeptCode[]): NavGroup[] {
         { items: [I.consola] },
         { label: 'Operación', items: [I.entrada, I.socios, I.niveles, I.clases, I.reservas, I.asistencia] },
         { label: 'Dinero', items: [I.cobros, I.facturas, I.planes] },
-        { label: 'Club', items: [I.reportes, I.avisos, I.personal, I.ajustes] },
+        { label: 'Club', items: [I.analiticas, I.reportes, I.avisos, I.personal, I.ajustes] },
       ];
     case 'administracion':
       return [
         { items: [I.consola] },
         { label: 'Dinero', items: [I.cobros, I.facturas, I.planes] },
         { label: 'Socios', items: [I.socios, I.niveles] },
-        { label: 'Club', items: [I.reportes, I.avisos, I.personal, I.ajustes] },
+        { label: 'Club', items: [I.analiticas, I.reportes, I.avisos, I.personal, I.ajustes] },
       ];
     case 'recepcion':
       return [
@@ -56,7 +57,7 @@ export function navFor(role: AppRole, depts: DeptCode[]): NavGroup[] {
       return [
         { items: [I.inicio] },
         { label: 'Mi departamento', items: [I.niveles, I.clases, I.asistencia, ...(depts.some((d) => BOOKABLE.includes(d)) ? [I.reservas] : [])] },
-        { label: 'Seguimiento', items: [I.socios, I.avisos, I.reportes] },
+        { label: 'Seguimiento', items: [I.socios, I.analiticas, I.avisos, I.reportes] },
       ];
     case 'coach':
       return [{ items: [I.midia, I.asistencia, I.clases, ...(depts.some((d) => BOOKABLE.includes(d)) ? [I.reservas] : [])] }];

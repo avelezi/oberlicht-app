@@ -1,12 +1,12 @@
 import {
   Award, BarChart3, CalendarCheck, CalendarDays, CircleUser, ClipboardCheck, FileText, IdCard, Layers,
-  LayoutDashboard, Megaphone, Package, Receipt, ScanLine, Settings, ShoppingCart, Stethoscope, Sun, Tags,
+  LayoutDashboard, LineChart, Megaphone, Package, Receipt, ScanLine, Settings, ShoppingCart, Stethoscope, Sun, Tags,
   UserPlus, Users, Wallet, type LucideIcon,
 } from 'lucide-react';
 
 const MAP: Record<string, LucideIcon> = {
   Award, BarChart3, CalendarCheck, CalendarDays, CircleUser, ClipboardCheck, FileText, IdCard, Layers,
-  LayoutDashboard, Megaphone, Package, Receipt, ScanLine, Settings, ShoppingCart, Stethoscope, Sun, Tags,
+  LayoutDashboard, LineChart, Megaphone, Package, Receipt, ScanLine, Settings, ShoppingCart, Stethoscope, Sun, Tags,
   UserPlus, Users, Wallet,
 };
 

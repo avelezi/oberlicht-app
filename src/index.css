@@ -34,3 +34,15 @@ body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-ins
 [data-theme='dark'] .bg-white\/70 { background-color: rgb(255 255 255 / 0.12); }
 [data-theme='dark'] .bg-brand-100 { background-color: rgb(219 141 207 / 0.2); }
 [data-theme='dark'] .text-brand-800 { color: #EBBBE3; }
+
+/* Gráficas: paleta validada (daltonismo y contraste) en claro y oscuro */
+:root {
+  --chart-1: #921C81; --chart-2: #A88B00; --chart-3: #019ADE;
+  --chart-grid: #EEEBF2; --chart-axis: #6C6579;
+  --heat-0: #F7F5F9; --heat-1: #F5DDF1; --heat-2: #EBBBE3; --heat-3: #DB8DCF; --heat-4: #C35BB3; --heat-5: #921C81; --heat-6: #62135A;
+}
+[data-theme='dark'] {
+  --chart-1: #C35BB3; --chart-2: #A88B00; --chart-3: #1FA8E2;
+  --chart-grid: #2E2639; --chart-axis: #B8AEC2;
+  --heat-0: #1F1828; --heat-1: #3A1A3A; --heat-2: #5A2156; --heat-3: #7A2C73; --heat-4: #A93597; --heat-5: #C35BB3; --heat-6: #EBBBE3;
+}

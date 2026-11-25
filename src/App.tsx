@@ -26,6 +26,7 @@ const Personal = lazy(() => import('@/pages/staff/Personal'));
 const Configuracion = lazy(() => import('@/pages/staff/Configuracion'));
 const MiDia = lazy(() => import('@/pages/staff/MiDia'));
 const Venta = lazy(() => import('@/pages/staff/Venta'));
+const Analiticas = lazy(() => import('@/pages/staff/Analiticas'));
 const PortalInicio = lazy(() => import('@/pages/portal/Inicio'));
 const PortalClases = lazy(() => import('@/pages/portal/MisClases'));
 const PortalReservas = lazy(() => import('@/pages/portal/Reservar'));
@@ -91,6 +92,7 @@ function Gate() {
           <Route path="/personal" element={manager(<Personal />)} />
           <Route path="/configuracion" element={manager(<Configuracion />)} />
           <Route path="/venta" element={staff(<Venta />)} />
+          <Route path="/analiticas" element={(isManager || profile.role === 'coordinador') ? <Analiticas /> : <Navigate to="/" replace />} />
           {/* Reservas: personal o familias */}
           <Route path="/reservas" element={isStaff ? <Reservas /> : <PortalReservas />} />
           {/* Portal de familias */}
