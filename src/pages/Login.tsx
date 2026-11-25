@@ -50,7 +50,7 @@ export default function Login() {
       <div className="hidden flex-col justify-between bg-sidebar p-12 text-white lg:flex">
         <img src={logoOscuro} alt="Oberlicht" className="h-16 w-auto" />
         <div>
-          <h1 className="font-heading text-4xl font-extrabold leading-tight">Todo el club en un solo lugar.</h1>
+          <h1 className="font-heading text-4xl text-white font-extrabold leading-tight">Todo el club en un solo lugar.</h1>
           <p className="mt-4 max-w-md text-lg text-white/80">
             Inscripciones, clases, reservas, pagos y facturas de natación, Oberfit, ballet, gimnasia rítmica y más.
           </p>
