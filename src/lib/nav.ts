@@ -1,0 +1,85 @@
+import type { NavGroup, NavItem } from '@/design-system';
+import type { AppRole, DeptCode } from './types';
+
+// Rutas de la app y qué ve cada rol. Los permisos reales viven en Supabase (RLS);
+// este menú solo muestra a cada persona las ventanas de su trabajo.
+
+const I = {
+  consola:     { id: 'inicio', label: 'Consola central', icon: 'LayoutDashboard', href: '/' },
+  inicio:      { id: 'inicio', label: 'Inicio', icon: 'LayoutDashboard', href: '/' },
+  midia:       { id: 'inicio', label: 'Mi día', icon: 'Sun', href: '/' },
+  entrada:     { id: 'entrada', label: 'Registrar entrada', icon: 'ScanLine', href: '/entrada' },
+  socios:      { id: 'socios', label: 'Socios y familias', icon: 'Users', href: '/socios' },
+  niveles:     { id: 'niveles', label: 'Niveles y grupos', icon: 'Layers', href: '/niveles' },
+  clases:      { id: 'clases', label: 'Horario de clases', icon: 'CalendarDays', href: '/clases' },
+  asistencia:  { id: 'asistencia', label: 'Pasar lista', icon: 'ClipboardCheck', href: '/asistencia' },
+  reservas:    { id: 'reservas', label: 'Reservas', icon: 'CalendarCheck', href: '/reservas' },
+  cobros:      { id: 'cobros', label: 'Cobros', icon: 'Wallet', href: '/cobros' },
+  facturas:    { id: 'facturas', label: 'Facturación (CFDI)', icon: 'FileText', href: '/facturacion' },
+  planes:      { id: 'planes', label: 'Planes y precios', icon: 'Tags', href: '/planes' },
+  reportes:    { id: 'reportes', label: 'Reportes', icon: 'BarChart3', href: '/reportes' },
+  avisos:      { id: 'avisos', label: 'Avisos', icon: 'Megaphone', href: '/avisos' },
+  personal:    { id: 'personal', label: 'Personal y permisos', icon: 'IdCard', href: '/personal' },
+  ajustes:     { id: 'ajustes', label: 'Configuración', icon: 'Settings', href: '/configuracion' },
+  ventas:      { id: 'ventas', label: 'Punto de venta', icon: 'ShoppingCart', href: '/venta' },
+  misclases:   { id: 'misclases', label: 'Clases e inscripciones', icon: 'CalendarDays', href: '/mis-clases' },
+  misreservas: { id: 'reservas', label: 'Reservar', icon: 'CalendarCheck', href: '/reservas' },
+  mispagos:    { id: 'mispagos', label: 'Pagos y facturas', icon: 'Receipt', href: '/mis-pagos' },
+  micuenta:    { id: 'micuenta', label: 'Mi familia', icon: 'CircleUser', href: '/mi-cuenta' },
+} satisfies Record<string, NavItem>;
+
+const BOOKABLE: DeptCode[] = ['oberfit', 'terapia', 'nutricion', 'natacion'];
+
+export function navFor(role: AppRole, depts: DeptCode[]): NavGroup[] {
+  switch (role) {
+    case 'direccion':
+      return [
+        { items: [I.consola] },
+        { label: 'Operación', items: [I.entrada, I.socios, I.niveles, I.clases, I.reservas, I.asistencia] },
+        { label: 'Dinero', items: [I.cobros, I.facturas, I.planes] },
+        { label: 'Club', items: [I.reportes, I.avisos, I.personal, I.ajustes] },
+      ];
+    case 'administracion':
+      return [
+        { items: [I.consola] },
+        { label: 'Dinero', items: [I.cobros, I.facturas, I.planes] },
+        { label: 'Socios', items: [I.socios, I.niveles] },
+        { label: 'Club', items: [I.reportes, I.avisos, I.personal, I.ajustes] },
+      ];
+    case 'recepcion':
+      return [
+        { items: [I.entrada, I.inicio] },
+        { label: 'Atención', items: [I.socios, I.cobros, I.reservas] },
+        { label: 'Consulta', items: [I.niveles, I.clases, I.avisos] },
+      ];
+    case 'coordinador':
+      return [
+        { items: [I.inicio] },
+        { label: 'Mi departamento', items: [I.niveles, I.clases, I.asistencia, ...(depts.some((d) => BOOKABLE.includes(d)) ? [I.reservas] : [])] },
+        { label: 'Seguimiento', items: [I.socios, I.avisos, I.reportes] },
+      ];
+    case 'coach':
+      return [{ items: [I.midia, I.asistencia, I.clases, ...(depts.some((d) => BOOKABLE.includes(d)) ? [I.reservas] : [])] }];
+    case 'ventas':
+      return [{ items: [I.ventas, I.avisos] }];
+    case 'titular':
+    default:
+      return [{ items: [I.inicio, I.misclases, I.misreservas, I.mispagos, I.micuenta] }];
+  }
+}
+
+/** Pantalla con la que abre cada rol: su tarea más frecuente. */
+export const HOME_BY_ROLE: Record<AppRole, string> = {
+  direccion: '/', administracion: '/', recepcion: '/entrada', coordinador: '/', coach: '/', ventas: '/venta', titular: '/',
+};
+
+export function activeIdFor(pathname: string, groups: NavGroup[]): string {
+  const items = groups.flatMap((g) => g.items);
+  const exact = items.find((i) => i.href === pathname);
+  if (exact) return exact.id;
+  const pref = items.filter((i) => i.href !== '/' && pathname.startsWith(i.href)).sort((a, b) => b.href.length - a.href.length)[0];
+  if (pref) return pref.id;
+  if (pathname.startsWith('/familias')) return 'socios';
+  if (pathname.startsWith('/grupos')) return 'niveles';
+  return 'inicio';
+}
