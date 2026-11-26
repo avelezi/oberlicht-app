@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Award, FileText, ListChecks, Plus } from 'lucide-react';
-import { Alert, Avatar, Button, Card, ConfirmFooter, EmptyState, Field, Input, Modal, PageHeader, Select, Switch, Textarea } from '@/design-system';
+import { Alert, Avatar, Button, Card, ConfirmFooter, EmptyState, Field, Input, Modal, PageHeader, Select, Textarea } from '@/design-system';
 import { useAuth } from '@/lib/auth';
 import { useAction, useAsync } from '@/lib/hooks';
 import { supabase, must } from '@/lib/supabase';
@@ -10,6 +10,7 @@ import { daysLabel, fullName, hhmm, isoDowMx, rangeLabel } from '@/lib/format';
 import type { Level, Member } from '@/lib/types';
 import { Area, ErrorBox, Loading } from '@/components/common';
 import { SkillBar } from '@/components/Escuela';
+import { SkillsEditor } from '@/components/Habilidades';
 import { SKILL_LABEL, SKILL_NEXT, type Skill, type SkillProgress, type SkillStatus } from '@/lib/escuela';
 
 const CHIP: Record<SkillStatus, string> = {
@@ -147,7 +148,7 @@ export default function Evaluar() {
 
       <BoletaModal member={boleta} levelId={group?.level_id ?? ''} groupId={groupId} onClose={() => setBoleta(null)} onDone={(id) => nav(`/boleta/${id}`)} />
       <CertModal member={cert} level={level} levels={cat.levels.filter((l) => l.department === group?.department && l.active)} onClose={() => setCert(null)} onDone={(id) => nav(`/certificado/${id}`)} />
-      {level && <SkillsEditor open={editSkills} level={level} skills={data?.skills ?? []} onClose={() => setEditSkills(false)} onDone={reload} />}
+      <SkillsEditor level={editSkills && level ? level : null} onClose={() => setEditSkills(false)} onDone={reload} />
     </>
   );
 }
@@ -191,47 +192,6 @@ function CertModal({ member, level, levels, onClose, onDone }: { member: Member 
         </Field>
         <Field label="Mensaje">{(p) => <Input {...p} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ej. ¡Felicidades por tu esfuerzo!" />}</Field>
       </div>
-    </Modal>
-  );
-}
-
-function SkillsEditor({ open, level, skills, onClose, onDone }: { open: boolean; level: Level; skills: Skill[]; onClose: () => void; onDone: () => void }) {
-  const [rows, setRows] = useState<(Partial<Skill> & { key: string })[]>([]);
-  const { busy, run } = useAction();
-  useEffect(() => { if (open) setRows(skills.map((s) => ({ ...s, key: s.id }))); }, [open, skills]);
-  const upd = (key: string, patch: Partial<Skill>) => setRows((rs) => rs.map((r) => (r.key === key ? { ...r, ...patch } : r)));
-
-  async function save() {
-    const r = await run(async () => {
-      for (const [i, row] of rows.entries()) {
-        const name = (row.name ?? '').trim();
-        if (!name) continue;
-        const orig = skills.find((s) => s.id === row.id);
-        if (!row.id) {
-          await must(supabase.from('skills').insert({ level_id: level.id, name, sort_order: i + 1, active: row.active ?? true }));
-        } else if (!orig || orig.name !== name || orig.active !== row.active || orig.sort_order !== i + 1) {
-          await must(supabase.from('skills').update({ name, active: row.active, sort_order: i + 1, is_example: orig?.name === name ? orig.is_example : false }).eq('id', row.id));
-        }
-      }
-      return true;
-    }, 'Habilidades guardadas');
-    if (r) { onDone(); onClose(); }
-  }
-
-  return (
-    <Modal open={open} onClose={onClose} title={`Habilidades de ${level.name}`} size="lg"
-      footer={<ConfirmFooter onCancel={onClose} onConfirm={save} loading={busy} confirmLabel="Guardar" />}>
-      <p className="mb-3 text-base text-fg-muted">En orden de aprendizaje. Si una ya no se evalúa, desactívala; su historial se conserva.</p>
-      <ul className="space-y-2">
-        {rows.map((r, i) => (
-          <li key={r.key} className="flex items-center gap-2">
-            <span className="w-6 shrink-0 text-right text-sm text-fg-muted ob-num">{i + 1}</span>
-            <Input value={r.name ?? ''} onChange={(e) => upd(r.key, { name: e.target.value })} placeholder="Ej. Flota boca arriba 10 s" />
-            <Switch checked={r.active ?? true} onChange={(v) => upd(r.key, { active: v })} label="Activa" />
-          </li>
-        ))}
-      </ul>
-      <Button className="mt-3" variant="secondary" icon={<Plus className="h-5 w-5" />} onClick={() => setRows((rs) => [...rs, { key: 'n' + Date.now(), name: '', active: true }])}>Agregar habilidad</Button>
     </Modal>
   );
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { ListChecks, Pencil, Plus } from 'lucide-react';
 import { Button, Card, ConfirmFooter, Field, Input, Modal, PageHeader, Select, Tabs } from '@/design-system';
 import { useAuth } from '@/lib/auth';
 import { useAction } from '@/lib/hooks';
@@ -9,6 +9,8 @@ import { useCatalog, staffName, type Catalog } from '@/lib/catalog';
 import { WEEKDAYS, daysLabel, hhmm, money0, rangeLabel } from '@/lib/format';
 import type { DeptCode, Level } from '@/lib/types';
 import { CapacityBar, ErrorBox, Loading } from '@/components/common';
+import { LevelModal, SkillsEditor } from '@/components/Habilidades';
+import { useAsync } from '@/lib/hooks';
 
 /** Niveles por área y sus grupos con cupo, horario e instructor. */
 export default function Niveles() {
@@ -18,18 +20,27 @@ export default function Niveles() {
   const areas = allDepartments.filter((d) => d.is_area && myAreas.includes(d.code) && cat?.levels.some((l) => l.department === d.code));
   const [area, setArea] = useState<string>('');
   const [newGroup, setNewGroup] = useState<Level | null>(null);
+  const [skillsOf, setSkillsOf] = useState<Level | null>(null);
+  const [editLevel, setEditLevel] = useState<Partial<Level> | null>(null);
+  const { data: counts, reload: reloadCounts } = useAsync(async () => {
+    const rows = (await must(supabase.from('skills').select('level_id').eq('active', true))) as { level_id: string }[];
+    return rows.reduce<Record<string, number>>((m, r) => ({ ...m, [r.level_id]: (m[r.level_id] ?? 0) + 1 }), {});
+  }, []);
   if (loading && !cat) return <Loading />;
   if (error || !cat) return <ErrorBox error={error ?? 'Sin datos'} onRetry={reload} />;
   const current = (area || areas[0]?.code) as DeptCode | undefined;
   const canEdit = (d: DeptCode) => isManager || (profile?.role === 'coordinador' && hasDept(d));
-  const levels = cat.levels.filter((l) => l.department === current && l.active);
+  const editable = current ? canEdit(current) : false;
+  const levels = cat.levels.filter((l) => l.department === current && (l.active || editable));
+  const editAreas = myAreas.filter((d) => canEdit(d as DeptCode)) as DeptCode[];
 
   return (
     <>
-      <PageHeader title="Niveles y grupos" description="Cada nivel tiene un rango de edad. Al inscribir, solo se ofrecen los grupos que corresponden a la edad del alumno." />
+      <PageHeader title="Niveles y grupos" description="Cada nivel tiene un rango de edad y su lista de habilidades. Al inscribir, solo se ofrecen los grupos que corresponden a la edad del alumno."
+        actions={editable && current ? <Button icon={<Plus className="h-5 w-5" />} onClick={() => setEditLevel({ department: current, min_age: 4, max_age: 6, sort_order: (levels.length + 1), active: true })}>Nuevo nivel</Button> : undefined} />
       <Tabs className="mb-6" value={current ?? ''} onChange={setArea}
         items={areas.map((a) => ({ id: a.code, label: a.name, count: cat.groups.filter((g) => g.department === a.code && g.active).length }))} />
-      {levels.length === 0 && <p className="text-base text-fg-muted">Esta área aún no tiene niveles. Dirección puede crearlos en Configuración.</p>}
+      {levels.length === 0 && <p className="text-base text-fg-muted">Esta área aún no tiene niveles.</p>}
       <div className="space-y-6">
         {levels.map((l) => {
           const gs = cat.groups.filter((g) => g.level_id === l.id && g.active);
@@ -37,10 +48,17 @@ export default function Niveles() {
             <Card key={l.id}>
               <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-xl font-bold">{l.name}</h2>
+                  <h2 className="text-xl font-bold">{l.name}{!l.active && <span className="ml-2 text-base font-normal text-fg-muted">(inactivo)</span>}</h2>
                   <p className="text-base text-fg-muted">{rangeLabel(Number(l.min_age), Number(l.max_age))}{l.description ? ` · ${l.description}` : ''}</p>
+                  <p className="text-sm text-fg-muted">{counts ? `${counts[l.id] ?? 0} habilidades para evaluar` : ''}</p>
                 </div>
-                {current && canEdit(current) && <Button variant="secondary" size="sm" icon={<Plus className="h-4 w-4" />} onClick={() => setNewGroup(l)}>Nuevo grupo</Button>}
+                {editable && (
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="secondary" size="sm" icon={<ListChecks className="h-4 w-4" />} onClick={() => setSkillsOf(l)}>Habilidades</Button>
+                    <Button variant="ghost" size="sm" icon={<Pencil className="h-4 w-4" />} onClick={() => setEditLevel(l)}>Editar nivel</Button>
+                    <Button variant="ghost" size="sm" icon={<Plus className="h-4 w-4" />} onClick={() => setNewGroup(l)}>Nuevo grupo</Button>
+                  </div>
+                )}
               </div>
               {gs.length === 0 ? <p className="text-base text-fg-muted">Sin grupos abiertos.</p> : (
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -65,6 +83,8 @@ export default function Niveles() {
         })}
       </div>
       <GroupModal level={newGroup} onClose={() => setNewGroup(null)} cat={cat} onDone={reload} />
+      <SkillsEditor level={skillsOf} onClose={() => setSkillsOf(null)} onDone={reloadCounts} />
+      <LevelModal level={editLevel} areas={editAreas} onClose={() => setEditLevel(null)} onDone={reload} />
     </>
   );
 }
