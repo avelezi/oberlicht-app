@@ -104,3 +104,13 @@ button { transition: transform .1s ease, background-color .15s ease, color .15s 
 /* Barra flotante (p. ej. «Ver ticket») justo encima de las pestañas */
 .ob-fab-bar { bottom: calc(66px + env(safe-area-inset-bottom)); }
 .ob-glass { background-color: color-mix(in srgb, var(--ob-surface) 94%, transparent); -webkit-backdrop-filter: saturate(1.6) blur(18px); backdrop-filter: saturate(1.6) blur(18px); }
+
+/* Documentos imprimibles (boleta, certificado) */
+@media print {
+  @page { margin: 12mm; }
+  body { background: #fff !important; }
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; inset: 0 auto auto 0; width: 100%; max-width: none; box-shadow: none; border: 0; }
+  .no-print { display: none !important; }
+}

@@ -173,7 +173,7 @@ function LockerModal({ locker, rental, canEdit, onEdit, onClose, onDone }: { loc
         <div className="grid gap-4">
           <p className="text-base">{SIZE[locker.size]} · {money(locker.monthly_price)} al mes</p>
           <div><p className="mb-1 text-sm font-semibold">Familia</p><FamilyPicker value={fam} onChange={(f) => { setFam(f); setMember(''); }} /></div>
-          {fam && <Field label="Socio que lo usa (opcional)">{(p) => <Select {...p} value={member} onChange={(e) => setMember(e.target.value)}><option value="">Toda la familia</option>{(members ?? []).map((m) => <option key={m.id} value={m.id}>{fullName(m)}</option>)}</Select>}</Field>}
+          {fam && <Field label="Socio que lo usa">{(p) => <Select {...p} value={member} onChange={(e) => setMember(e.target.value)}><option value="">Toda la familia</option>{(members ?? []).map((m) => <option key={m.id} value={m.id}>{fullName(m)}</option>)}</Select>}</Field>}
           <Field label="Meses">{(p) => <Select {...p} value={months} onChange={(e) => setMonths(e.target.value)}>{[1, 2, 3, 6, 12].map((m) => <option key={m} value={m}>{m}</option>)}</Select>}</Field>
         </div>
       )}

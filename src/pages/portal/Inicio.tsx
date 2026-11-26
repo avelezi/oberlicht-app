@@ -11,6 +11,9 @@ import type { Announcement, Charge, Enrollment, GroupOccupancy } from '@/lib/typ
 import { Area, ErrorBox, Loading } from '@/components/common';
 import { FamilyFormModal } from '@/components/FamilyForms';
 import { ThemedLogo } from '@/components/AppControls';
+import { OfertasLugar } from '@/components/Escuela';
+import { useCatalog } from '@/lib/catalog';
+import type { WaitlistOffer } from '@/lib/escuela';
 
 /** Inicio del portal de familias. Si aún no hay familia registrada, guía el alta en un paso. */
 export default function PortalInicio() {
@@ -18,18 +21,20 @@ export default function PortalInicio() {
   const { profile } = useAuth();
   const { data: mine, error, loading, reload } = useMyFamily();
   const [creating, setCreating] = useState(false);
+  const { data: cat } = useCatalog();
 
-  const { data } = useAsync(async () => {
+  const { data, reload: reloadData } = useAsync(async () => {
     if (!mine?.fam) return null;
     const mids = mine.members.map((m) => m.id);
-    const [charges, enr, avisos] = await Promise.all([
+    const [charges, enr, avisos, offers] = await Promise.all([
       must(supabase.from('charges').select('*').eq('family_id', mine.fam.id).in('status', ['pendiente', 'vencido']).order('due_date')),
       mids.length ? must(supabase.from('enrollments').select('*').in('member_id', mids).in('status', ['activa', 'lista_espera'])) : [],
       must(supabase.from('announcements').select('*').in('audience', ['todos', 'familias']).order('starts_on', { ascending: false }).limit(5)),
+      mids.length ? must(supabase.from('waitlist_offers').select('*').in('member_id', mids).eq('status', 'pendiente')) : [],
     ]);
     const gids = (enr as Enrollment[]).map((e) => e.group_id);
     const groups = gids.length ? ((await must(supabase.from('group_occupancy').select('*').in('group_id', gids))) as GroupOccupancy[]) : [];
-    return { charges: charges as Charge[], enr: enr as Enrollment[], avisos: avisos as Announcement[], groups };
+    return { charges: charges as Charge[], enr: enr as Enrollment[], avisos: avisos as Announcement[], groups, offers: offers as WaitlistOffer[] };
   }, [mine?.fam?.id]);
 
   if (loading && !mine) return <Loading />;
@@ -64,6 +69,7 @@ export default function PortalInicio() {
     <>
       <PageHeader title={`Hola, ${members.find((m) => m.is_titular)?.first_name ?? fam.name}`} description={`${fam.name} · Socio #${fam.number}`} />
       <div className="mb-6 grid gap-3">
+        {cat && data && <OfertasLugar offers={data.offers} members={members} cat={cat} onChanged={reloadData} />}
         {balance > 0 && (
           <Alert tone={overdue ? 'danger' : 'warning'} title={overdue ? `Tienes ${money0(balance)} vencido` : `Tienes ${money0(balance)} por pagar`}
             action={<Button variant="secondary" size="sm" onClick={() => nav('/mis-pagos')}>Ver pagos</Button>}>

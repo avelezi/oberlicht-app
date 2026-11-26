@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ClipboardCheck, Pencil, TrendingUp } from 'lucide-react';
-import { Avatar, Button, ConfirmFooter, Field, Modal, PageHeader, Select, StatCard, Table, Textarea } from '@/design-system';
+import { ArrowLeft, Award, ClipboardCheck, Pencil, TrendingUp } from 'lucide-react';
+import { Avatar, Badge, Button, ConfirmFooter, Field, Modal, PageHeader, Select, StatCard, Table, Textarea } from '@/design-system';
 import { useAuth } from '@/lib/auth';
 import { useAction, useAsync } from '@/lib/hooks';
 import { supabase, must } from '@/lib/supabase';
@@ -10,6 +10,7 @@ import { ageLabel, dateShort, daysLabel, fullName, hhmm, rangeLabel } from '@/li
 import type { Enrollment, Level, Member } from '@/lib/types';
 import { CapacityBar, EnrollmentBadge, ErrorBox, HealthFlag, Loading, Section } from '@/components/common';
 import { GroupModal } from './Niveles';
+import { timeLeft, type WaitlistOffer } from '@/lib/escuela';
 
 type Row = Enrollment & { members: Member };
 
@@ -24,11 +25,12 @@ export default function Grupo() {
   const { busy, run } = useAction();
 
   const { data, error, loading, reload } = useAsync(async () => {
-    const [rows, att] = await Promise.all([
+    const [rows, att, offers] = await Promise.all([
       must(supabase.from('enrollments').select('*, members(*)').eq('group_id', id!).in('status', ['activa', 'lista_espera', 'congelada']).order('enrolled_at')),
       must(supabase.from('attendance').select('member_id, status, date').eq('group_id', id!).gte('date', new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10))),
+      must(supabase.from('waitlist_offers').select('*').eq('group_id', id!).eq('status', 'pendiente')),
     ]);
-    return { rows: rows as Row[], att: att as { member_id: string; status: string; date: string }[] };
+    return { rows: rows as Row[], att: att as { member_id: string; status: string; date: string }[], offers: offers as WaitlistOffer[] };
   }, [id]);
 
   if ((loading && !data) || !cat) return <Loading />;
@@ -38,7 +40,7 @@ export default function Grupo() {
   const level = cat.levels.find((l) => l.id === g.level_id);
   const canEdit = isManager || (profile?.role === 'coordinador' && hasDept(g.department));
   const active = data.rows.filter((r) => r.status === 'activa');
-  const waiting = data.rows.filter((r) => r.status === 'lista_espera');
+  const waiting = data.rows.filter((r) => r.status === 'lista_espera').sort((a, b) => (a.queue_at ?? a.enrolled_at).localeCompare(b.queue_at ?? b.enrolled_at));
   const frozen = data.rows.filter((r) => r.status === 'congelada');
   const sessions = new Set(data.att.map((a) => a.date)).size;
   const pct = (mid: string) => {
@@ -60,7 +62,10 @@ export default function Grupo() {
     ) },
     { key: 'a', header: 'Asistencia (30 días)', hideOnMobile: true, cell: (r: Row) => { const p = pct(r.member_id); return p === null ? '—' : <span className={p < 70 ? 'font-semibold text-warning-700' : 'font-semibold text-success-700'}>{p}%</span>; } },
     { key: 'e', header: 'Desde', hideOnMobile: true, cell: (r: Row) => dateShort(r.enrolled_at) },
-    { key: 's', header: 'Estado', cell: (r: Row) => <EnrollmentBadge e={r} /> },
+    { key: 's', header: 'Estado', cell: (r: Row) => {
+      const o = data.offers.find((x) => x.enrollment_id === r.id);
+      return o ? <Badge tone="success" size="sm">Lugar ofrecido · {timeLeft(o.expires_at)}</Badge> : <EnrollmentBadge e={r} />;
+    } },
     { key: 'x', header: '', align: 'right' as const, cell: (r: Row) => (
       <div className="flex justify-end gap-1">
         {!isFrontOffice || hasDept(g.department) ? <Button size="sm" variant="ghost" icon={<TrendingUp className="h-4 w-4" />} onClick={() => setPromote(r.members)}>Subir de nivel</Button> : null}
@@ -77,17 +82,18 @@ export default function Grupo() {
         description={`${rangeLabel(Number(g.min_age), Number(g.max_age))} · ${g.location ?? 'Sin ubicación'} · Instructor: ${staffName(cat, g.coach_id)}`}
         actions={<>
           {canEdit && <Button variant="secondary" icon={<Pencil className="h-5 w-5" />} onClick={() => setEdit(true)}>Editar grupo</Button>}
+          {['natacion', 'ballet', 'gimnasia'].includes(g.department) && <Button variant="secondary" icon={<Award className="h-5 w-5" />} onClick={() => nav(`/evaluar?grupo=${g.group_id}`)}>Evaluar</Button>}
           <Button icon={<ClipboardCheck className="h-5 w-5" />} onClick={() => nav(`/asistencia?grupo=${g.group_id}`)}>Pasar lista</Button>
         </>}
       />
       <div className="ob-stats mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <StatCard label="Inscritos" value={<span className="ob-num">{active.length}/{g.capacity}</span>} hint={<CapacityBar used={active.length} total={g.capacity} />} />
-        <StatCard label="Lista de espera" value={waiting.length} hint="Entran solos cuando se libera un lugar" />
+        <StatCard label="Lista de espera" value={waiting.length} hint="Al liberarse un lugar se le ofrece al primero con plazo para aceptar" />
         <StatCard label="Clases registradas" value={sessions} hint="Últimos 30 días" />
       </div>
       <div className="space-y-6">
         <Section title="Alumnos inscritos"><Table columns={columns} rows={active} rowKey={(r) => r.id} empty="Aún no hay alumnos en este grupo." /></Section>
-        {waiting.length > 0 && <Section title="Lista de espera" description="En orden de llegada."><Table columns={columns} rows={waiting} rowKey={(r) => r.id} /></Section>}
+        {waiting.length > 0 && <Section title="Lista de espera" description="En orden de llegada. Si alguien no acepta a tiempo, pasa al final."><Table columns={columns} rows={waiting} rowKey={(r) => r.id} /></Section>}
         {frozen.length > 0 && <Section title="Congelados"><Table columns={columns} rows={frozen} rowKey={(r) => r.id} /></Section>}
       </div>
       <GroupModal level={edit ? (level ?? null) : null} groupId={g.group_id} onClose={() => setEdit(false)} cat={cat} onDone={() => { reloadCat(); reload(); }} />
@@ -117,7 +123,7 @@ function PromoteModal({ member, onClose, levels, currentLevel, onSave, busy }: {
             {levels.map((l) => <option key={l.id} value={l.id}>{l.name} ({rangeLabel(Number(l.min_age), Number(l.max_age))})</option>)}
           </Select>}
         </Field>
-        <Field label="Comentario (opcional)">{(p) => <Textarea {...p} rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ej. Domina crol y dorso 25 m." />}</Field>
+        <Field label="Comentario">{(p) => <Textarea {...p} rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ej. Domina crol y dorso 25 m." />}</Field>
       </div>
     </Modal>
   );

@@ -28,6 +28,9 @@ const I = {
   privadas:    { id: 'privadas', label: 'Clases privadas', icon: 'UserCheck', href: '/privadas' },
   casilleros:  { id: 'casilleros', label: 'Casilleros', icon: 'KeyRound', href: '/casilleros' },
   recordatorios: { id: 'recordatorios', label: 'Recordatorios', icon: 'BellRing', href: '/recordatorios' },
+  evaluar:     { id: 'evaluar', label: 'Evaluar habilidades', icon: 'Award', href: '/evaluar' },
+  prospectos:  { id: 'prospectos', label: 'Prospectos y pruebas', icon: 'UserPlus', href: '/prospectos' },
+  retencion:   { id: 'retencion', label: 'Retención', icon: 'HeartHandshake', href: '/retencion' },
   mant:        { id: 'mant', label: 'Mantenimiento', icon: 'Wrench', href: '/mantenimiento' },
   misclases:   { id: 'misclases', label: 'Clases e inscripciones', icon: 'CalendarDays', href: '/mis-clases' },
   misreservas: { id: 'reservas', label: 'Reservar', icon: 'CalendarCheck', href: '/reservas' },
@@ -44,7 +47,8 @@ export function navFor(role: AppRole, depts: DeptCode[]): NavGroup[] {
     case 'direccion':
       return [
         { items: [I.consola] },
-        { label: 'Operación', items: [I.entrada, I.socios, I.niveles, I.clases, I.reservas, I.asistencia, I.privadas, I.casilleros] },
+        { label: 'Operación', items: [I.entrada, I.socios, I.niveles, I.clases, I.reservas, I.asistencia, I.evaluar, I.privadas, I.casilleros] },
+        { label: 'Crecer', items: [I.prospectos, I.retencion] },
         { label: 'Dinero', items: [I.cobros, I.facturas, I.planes, I.ventas, I.productos, I.cupones] },
         { label: 'Club', items: [I.analiticas, I.recordatorios, I.mant, I.reportes, I.avisos, I.personal, I.ajustes] },
       ];
@@ -52,25 +56,25 @@ export function navFor(role: AppRole, depts: DeptCode[]): NavGroup[] {
       return [
         { items: [I.consola] },
         { label: 'Dinero', items: [I.cobros, I.facturas, I.planes, I.ventas, I.productos, I.cupones] },
-        { label: 'Socios', items: [I.socios, I.niveles, I.privadas, I.casilleros, I.recordatorios] },
+        { label: 'Socios', items: [I.socios, I.prospectos, I.retencion, I.niveles, I.privadas, I.casilleros, I.recordatorios] },
         { label: 'Club', items: [I.analiticas, I.mant, I.reportes, I.avisos, I.personal, I.ajustes] },
       ];
     case 'recepcion':
       return [
         { items: [I.entrada, I.inicio] },
-        { label: 'Atención', items: [I.socios, I.cobros, I.reservas, I.ventas, I.privadas, I.casilleros, I.recordatorios] },
+        { label: 'Atención', items: [I.socios, I.prospectos, I.cobros, I.reservas, I.ventas, I.privadas, I.casilleros, I.recordatorios, I.retencion] },
         { label: 'Consulta', items: [I.niveles, I.clases, I.avisos, I.mant] },
       ];
     case 'coordinador':
       return [
         { items: [I.inicio] },
-        { label: 'Mi departamento', items: [I.niveles, I.clases, I.asistencia, ...book, I.privadas] },
-        { label: 'Seguimiento', items: [I.socios, I.recordatorios, I.analiticas, I.avisos, I.reportes, I.mant] },
+        { label: 'Mi departamento', items: [I.niveles, I.clases, I.asistencia, I.evaluar, ...book, I.privadas] },
+        { label: 'Seguimiento', items: [I.socios, I.prospectos, I.retencion, I.recordatorios, I.analiticas, I.avisos, I.reportes, I.mant] },
       ];
     case 'coach':
-      return [{ items: [I.midia, I.asistencia, I.clases, ...book, I.privadas, ...pool] }];
+      return [{ items: [I.midia, I.asistencia, I.evaluar, I.clases, ...book, I.privadas, ...pool] }];
     case 'ventas':
-      return [{ items: [I.ventas, I.productos, I.avisos] }];
+      return [{ items: [I.ventas, I.productos, I.prospectos, I.avisos] }];
     case 'mantenimiento':
       return [{ items: [I.mant, I.avisos] }];
     case 'titular':
@@ -101,8 +105,8 @@ const TABS_BY_ROLE: Record<AppRole, string[]> = {
   administracion: ['inicio', 'cobros', 'socios', 'ventas'],
   recepcion: ['entrada', 'socios', 'cobros', 'ventas'],
   coordinador: ['inicio', 'asistencia', 'niveles', 'socios'],
-  coach: ['inicio', 'asistencia', 'clases', 'privadas'],
-  ventas: ['ventas', 'productos', 'avisos'],
+  coach: ['inicio', 'asistencia', 'evaluar', 'clases'],
+  ventas: ['ventas', 'productos', 'prospectos', 'avisos'],
   mantenimiento: ['mant', 'avisos'],
   titular: ['inicio', 'misclases', 'reservas', 'mispagos'],
 };
@@ -112,6 +116,7 @@ const SHORT: Record<string, string> = {
   inicio: 'Inicio', entrada: 'Entrada', socios: 'Socios', cobros: 'Cobros', analiticas: 'Analíticas', ventas: 'Venta',
   asistencia: 'Lista', niveles: 'Grupos', clases: 'Horario', privadas: 'Privadas', productos: 'Inventario', avisos: 'Avisos',
   mant: 'Mantenim.', misclases: 'Clases', reservas: 'Reservar', mispagos: 'Pagos',
+  evaluar: 'Evaluar', prospectos: 'Prospectos', retencion: 'Retención',
 };
 
 export function tabsFor(role: AppRole, groups: NavGroup[]): NavItem[] {

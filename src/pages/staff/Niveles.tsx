@@ -132,7 +132,7 @@ export function GroupModal({ level, onClose, cat, onDone, groupId }: { level: Le
         <Field label="Plan (precio)">{(p) => <Select {...p} value={plan} onChange={(e) => setPlan(e.target.value)}>
           <option value="">Sin plan</option>
           {cat.plans.filter((pl) => pl.department === level?.department).map((pl) => <option key={pl.id} value={pl.id}>{pl.name} · {money0(pl.price_monthly)}</option>)}</Select>}</Field>
-        <Field label="Nombre (opcional)" className="sm:col-span-2">{(p) => <Input {...p} value={name} onChange={(e) => setName(e.target.value)} placeholder="Se genera solo si lo dejas vacío" />}</Field>
+        <Field label="Nombre" className="sm:col-span-2">{(p) => <Input {...p} value={name} onChange={(e) => setName(e.target.value)} placeholder="Se genera solo si lo dejas vacío" />}</Field>
       </div>
     </Modal>
   );

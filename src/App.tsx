@@ -33,6 +33,12 @@ const Productos = lazy(() => import('@/pages/staff/Productos'));
 const Cupones = lazy(() => import('@/pages/staff/Cupones'));
 const Privadas = lazy(() => import('@/pages/staff/Privadas'));
 const Casilleros = lazy(() => import('@/pages/staff/Casilleros'));
+const Evaluar = lazy(() => import('@/pages/staff/Evaluar'));
+const Prospectos = lazy(() => import('@/pages/staff/Prospectos'));
+const Retencion = lazy(() => import('@/pages/staff/Retencion'));
+const Boleta = lazy(() => import('@/pages/docs/Boleta'));
+const Certificado = lazy(() => import('@/pages/docs/Certificado'));
+const Prueba = lazy(() => import('@/pages/Prueba'));
 const PortalInicio = lazy(() => import('@/pages/portal/Inicio'));
 const PortalClases = lazy(() => import('@/pages/portal/MisClases'));
 const PortalReservas = lazy(() => import('@/pages/portal/Reservar'));
@@ -65,6 +71,7 @@ function Gate() {
       <Routes>
         <Route path="/nueva-contrasena" element={<NewPassword />} />
         <Route path="/instalar" element={<Instalar />} />
+        <Route path="/prueba" element={<Suspense fallback={<Loading />}><Prueba /></Suspense>} />
         <Route path="*" element={<Login />} />
       </Routes>
     );
@@ -82,6 +89,7 @@ function Gate() {
       <Routes>
         <Route path="/nueva-contrasena" element={<NewPassword />} />
         <Route path="/instalar" element={<Instalar />} />
+        <Route path="/prueba" element={<Prueba />} />
         <Route element={<Layout />}>
           <Route index element={<Home />} />
           {/* Personal */}
@@ -106,6 +114,11 @@ function Gate() {
           <Route path="/casilleros" element={front(<Casilleros />)} />
           <Route path="/recordatorios" element={staff(<Recordatorios />)} />
           <Route path="/mantenimiento" element={staff(<Mantenimiento />)} />
+          <Route path="/evaluar" element={staff(<Evaluar />)} />
+          <Route path="/prospectos" element={(isFrontOffice || ['ventas', 'coordinador'].includes(profile.role)) ? <Prospectos /> : <Navigate to="/" replace />} />
+          <Route path="/retencion" element={(isFrontOffice || profile.role === 'coordinador') ? <Retencion /> : <Navigate to="/" replace />} />
+          <Route path="/boleta/:id" element={<Boleta />} />
+          <Route path="/certificado/:id" element={<Certificado />} />
           <Route path="/analiticas" element={(isManager || profile.role === 'coordinador') ? <Analiticas /> : <Navigate to="/" replace />} />
           {/* Reservas: personal o familias */}
           <Route path="/reservas" element={isStaff ? <Reservas /> : <PortalReservas />} />

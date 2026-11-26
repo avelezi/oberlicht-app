@@ -74,7 +74,7 @@ export default function Avisos() {
             <Field label="¿Quién lo ve?">{(p) => <Select {...p} value={edit.audience} onChange={(e) => set('audience', e.target.value)}>
               {Object.entries(AUD).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select>}</Field>
             <Field label="Desde">{(p) => <Input {...p} type="date" value={edit.starts_on ?? todayMx()} onChange={(e) => set('starts_on', e.target.value)} />}</Field>
-            <Field label="Hasta (opcional)">{(p) => <Input {...p} type="date" value={edit.ends_on ?? ''} onChange={(e) => set('ends_on', e.target.value)} />}</Field>
+            <Field label="Hasta">{(p) => <Input {...p} type="date" value={edit.ends_on ?? ''} onChange={(e) => set('ends_on', e.target.value)} />}</Field>
           </div>
         )}
       </Modal>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Pencil, Plus, Wallet, GraduationCap, Snowflake, LogOut, ArrowRightLeft, NotebookPen } from 'lucide-react';
+import { ArrowLeft, Pencil, Plus, Wallet, GraduationCap, Snowflake, LogOut, ArrowRightLeft, NotebookPen, CalendarX } from 'lucide-react';
 import {
   Alert, Avatar, Button, Card, ConfirmFooter, Field, Input, Modal, PageHeader, Select, StatusBadge, Table, Tabs, Textarea, Checkbox,
 } from '@/design-system';
@@ -8,10 +8,12 @@ import { useAuth, deptName } from '@/lib/auth';
 import { useAction, useAsync } from '@/lib/hooks';
 import { supabase, must } from '@/lib/supabase';
 import { useCatalog, staffName, type Catalog } from '@/lib/catalog';
-import { ageLabel, dateLong, dateShort, dateTime, daysLabel, fullName, hhmm, money, money0, seniority, todayMx } from '@/lib/format';
+import { ageLabel, dateLong, dateShort, dateTime, daysLabel, fullName, hhmm, money, money0, seniority } from '@/lib/format';
 import type { Charge, DeptCode, Enrollment, Family, Invoice, Member, Membership, Payment } from '@/lib/types';
 import { Area, ChargeBadge, EnrollmentBadge, ErrorBox, HealthFlag, Info, InvoiceBadge, Loading, Section } from '@/components/common';
 import { CobrarModal, FamilyFormModal, InscribirModal, MemberFormModal, REGIMENES } from '@/components/FamilyForms';
+import { AvanceAlumno, AvisarFaltaModal, BajaFlowModal, CreditosReposicion, OfertasLugar } from '@/components/Escuela';
+import type { MakeupCredit, WaitlistOffer } from '@/lib/escuela';
 
 type Note = { id: string; member_id: string; department: DeptCode; note: string; visible_to_family: boolean; created_at: string };
 
@@ -30,6 +32,8 @@ export default function Familia() {
   const [note, setNote] = useState<Member | null>(null);
   const [move, setMove] = useState<Enrollment | null>(null);
   const [coupon, setCoupon] = useState<{ charge: Charge; code: string } | null>(null);
+  const [baja, setBaja] = useState<{ enrollment?: Enrollment; membership?: Membership; memberName: string } | null>(null);
+  const [falta, setFalta] = useState<Enrollment | null>(null);
   const cobrar = params.get('cobrar') === '1';
   const { busy, run } = useAction();
 
@@ -37,10 +41,12 @@ export default function Familia() {
     const fam = (await must(supabase.from('families').select('*').eq('id', id!).single())) as Family;
     const members = (await must(supabase.from('members').select('*').eq('family_id', id!).order('is_titular', { ascending: false }).order('birthdate'))) as Member[];
     const mids = members.map((m) => m.id);
-    const [enr, mem, notes] = await Promise.all([
+    const [enr, mem, notes, credits, offers] = await Promise.all([
       mids.length ? must(supabase.from('enrollments').select('*').in('member_id', mids).order('enrolled_at', { ascending: false })) : [],
       mids.length ? must(supabase.from('memberships').select('*').in('member_id', mids).order('starts_on', { ascending: false })) : [],
       mids.length ? must(supabase.from('progress_notes').select('*').in('member_id', mids).order('created_at', { ascending: false }).limit(30)) : [],
+      mids.length ? must(supabase.from('makeup_credits').select('*').in('member_id', mids).in('status', ['disponible', 'agendada']).order('missed_date')) : [],
+      mids.length ? must(supabase.from('waitlist_offers').select('*').in('member_id', mids).eq('status', 'pendiente')) : [],
     ]);
     let charges: Charge[] = [], payments: Payment[] = [], invoices: Invoice[] = [];
     if (isFrontOffice) {
@@ -50,13 +56,13 @@ export default function Familia() {
         must(supabase.from('invoices').select('*').eq('family_id', id!).order('created_at', { ascending: false }).limit(60)),
       ])) as [Charge[], Payment[], Invoice[]];
     }
-    return { fam, members, enr: enr as Enrollment[], mem: mem as Membership[], notes: notes as Note[], charges, payments, invoices };
+    return { fam, members, enr: enr as Enrollment[], mem: mem as Membership[], notes: notes as Note[], credits: credits as MakeupCredit[], offers: offers as WaitlistOffer[], charges, payments, invoices };
   }, [id, isFrontOffice]);
 
   if (loading && !data) return <Loading />;
   if (error) return <ErrorBox error={error} onRetry={reload} />;
   if (!data || !cat) return <Loading />;
-  const { fam, members, enr, mem, notes, charges, payments, invoices } = data;
+  const { fam, members, enr, mem, notes, credits, offers, charges, payments, invoices } = data;
   const due = charges.filter((c) => c.status === 'pendiente' || c.status === 'vencido');
   const balance = due.reduce((s, c) => s + Number(c.amount), 0);
   const overdue = charges.some((c) => c.status === 'vencido');
@@ -145,6 +151,7 @@ export default function Familia() {
                   {myNotes.map((n) => (
                     <p key={n.id} className="rounded-md bg-surface-sunken px-3 py-2 text-sm"><strong>{deptName(allDepartments, n.department)} · {dateShort(n.created_at)}:</strong> {n.note}</p>
                   ))}
+                  <AvanceAlumno member={m} cat={cat} levelIds={[...new Set(myEnr.filter((e) => e.status === 'activa').map((e) => group(e.group_id)?.level_id).filter((x): x is string => !!x))]} />
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button size="sm" icon={<GraduationCap className="h-4 w-4" />} onClick={() => setInscribir(m.id)}>Inscribir a clase</Button>
@@ -164,7 +171,11 @@ export default function Familia() {
       )}
 
       {tab === 'clases' && (
-        <Section title="Clases, membresías y paquetes" description="Congela una inscripción si el alumno se ausenta un tiempo; al darla de baja, su lugar pasa al primero de la lista de espera.">
+        <Section title="Clases, membresías y paquetes" description="Si piden la baja, la app ofrece congelar, descuento o cambio de horario antes de confirmarla. El lugar liberado se ofrece a la lista de espera.">
+          <div className="mb-4 grid gap-3">
+            <OfertasLugar offers={offers} members={members} cat={cat} onChanged={reload} />
+            <CreditosReposicion members={members} cat={cat} credits={credits} onChanged={reload} />
+          </div>
           <Table
             rows={enr} rowKey={(e) => e.id}
             empty="Sin inscripciones. Usa «Inscribir a clase» en la ficha del miembro."
@@ -177,10 +188,15 @@ export default function Familia() {
               { key: 's', header: 'Estado', cell: (e) => <EnrollmentBadge e={e} /> },
               { key: 'a', header: '', align: 'right', cell: (e) => e.status === 'baja' ? <span className="text-sm text-fg-muted">{dateShort(e.ended_at)}</span> : (
                 <div className="flex justify-end gap-1">
+                  {e.status === 'activa' && <Button size="sm" variant="ghost" icon={<CalendarX className="h-4 w-4" />} onClick={() => setFalta(e)}>Avisar falta</Button>}
                   {e.status === 'activa' && <Button size="sm" variant="ghost" icon={<ArrowRightLeft className="h-4 w-4" />} onClick={() => setMove(e)}>Cambiar</Button>}
                   {e.status === 'activa' && <Button size="sm" variant="ghost" icon={<Snowflake className="h-4 w-4" />} loading={busy} onClick={() => changeStatus(e, 'congelada', 'Inscripción congelada')}>Congelar</Button>}
                   {e.status === 'congelada' && <Button size="sm" variant="ghost" loading={busy} onClick={() => changeStatus(e, 'activa', 'Inscripción reactivada')}>Reactivar</Button>}
-                  <Button size="sm" variant="ghost" icon={<LogOut className="h-4 w-4" />} loading={busy} onClick={() => changeStatus(e, 'baja', 'Baja registrada')}>Baja</Button>
+                  <Button size="sm" variant="ghost" icon={<LogOut className="h-4 w-4" />} onClick={() => {
+                    if (e.status === 'lista_espera') { changeStatus(e, 'baja', 'Salió de la lista de espera'); return; }
+                    const m = members.find((x) => x.id === e.member_id);
+                    setBaja({ enrollment: e, memberName: m?.first_name ?? '' });
+                  }}>Baja</Button>
                 </div>
               ) },
             ]}
@@ -195,10 +211,7 @@ export default function Familia() {
                 { key: 'pr', header: 'Mensualidad', align: 'right', cell: (x) => money(x.monthly_price), hideOnMobile: true },
                 { key: 's', header: 'Estado', cell: (x) => <StatusBadge status={x.status === 'activa' ? 'activo' : x.status === 'congelada' ? 'congelado' : 'cancelado'} label={x.status === 'baja' ? 'Baja' : undefined} /> },
                 ...(isFrontOffice ? [{ key: 'a', header: '', align: 'right' as const, cell: (x: Membership) => x.status !== 'baja' && (
-                  <Button size="sm" variant="ghost" loading={busy} onClick={async () => {
-                    const r = await run(() => must(supabase.from('memberships').update({ status: 'baja', ends_on: todayMx() }).eq('id', x.id).select()), 'Membresía dada de baja');
-                    if (r) reload();
-                  }}>Baja</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setBaja({ membership: x, memberName: members.find((y) => y.id === x.member_id)?.first_name ?? '' })}>Baja</Button>
                 ) }] : []),
               ]} />
             </div>
@@ -266,6 +279,8 @@ export default function Familia() {
       <MemberFormModal open={editMember !== undefined} onClose={() => setEditMember(undefined)} familyId={fam.id} member={editMember} onSaved={reload} />
       <InscribirModal open={inscribir !== null} onClose={() => setInscribir(null)} members={members.filter((m) => m.active)} cat={cat}
         defaultMemberId={inscribir ?? undefined} onDone={reload} areas={isFrontOffice ? undefined : myAreas} />
+      <BajaFlowModal target={baja} cat={cat} onClose={() => setBaja(null)} onDone={reload} />
+      <AvisarFaltaModal enrollment={falta} group={falta ? group(falta.group_id) : undefined} memberName={members.find((m) => m.id === falta?.member_id)?.first_name ?? ''} onClose={() => setFalta(null)} onDone={reload} />
       {isFrontOffice && <CobrarModal open={cobrar} onClose={() => setParams({})} family={fam} onDone={reload} />}
       <MembershipModal memberId={membership} onClose={() => setMembership(null)} cat={cat} onDone={reload} />
       <NoteModal member={note} onClose={() => setNote(null)} areas={myAreas} onDone={reload} />

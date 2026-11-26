@@ -6,6 +6,7 @@ import logoOscuro from '@/design-system/assets/oberlicht-logo-fondo-oscuro.png';
 import { useAuth, ROLE_NAME, deptName } from '@/lib/auth';
 import { activeIdFor, navFor, tabsFor } from '@/lib/nav';
 import { NavIcon } from './Icon';
+import { rutinaDiaria } from '@/lib/escuela';
 import { InstallButton, ThemePicker, ThemeToggle, ThemedLogo } from './AppControls';
 
 /** Marco de la plataforma: menú por rol/departamento; en celular, barra de marca arriba y pestañas abajo. */
@@ -16,6 +17,8 @@ export function Layout() {
   const [more, setMore] = useState(false);
   // Al cambiar de pantalla: cerrar «Más» y volver arriba, como en una app.
   useEffect(() => { setMore(false); window.scrollTo(0, 0); }, [loc.pathname]);
+  // Ofertas de lugar, vencimientos y acciones de retención (como máximo una vez por hora)
+  useEffect(() => { if (profile?.id) rutinaDiaria().catch(() => undefined); }, [profile?.id, loc.pathname]);
   if (!profile) return null;
   const groups = navFor(profile.role, departments);
   const items = groups.flatMap((g) => g.items);

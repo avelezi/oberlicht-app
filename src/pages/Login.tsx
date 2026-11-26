@@ -129,6 +129,7 @@ export default function Login() {
               Regresar a iniciar sesión
             </button>
           )}
+          <p className="text-center text-base text-fg-muted">¿Aún no eres socio? <a href="/prueba" className="font-semibold text-primary hover:underline">Agenda una clase de prueba</a></p>
         </form>
       </div>
     </div>

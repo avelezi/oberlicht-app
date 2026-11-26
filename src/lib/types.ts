@@ -61,6 +61,7 @@ export type EnrollmentStatus = 'activa' | 'lista_espera' | 'congelada' | 'baja';
 export interface Enrollment {
   id: string; member_id: string; group_id: string; status: EnrollmentStatus;
   monthly_price: number; discount_pct: number; enrolled_at: string; ended_at: string | null; notes: string | null;
+  freeze_until?: string | null; queue_at?: string | null;
 }
 
 export interface Membership {

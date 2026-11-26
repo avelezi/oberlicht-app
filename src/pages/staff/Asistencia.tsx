@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Check, X, Clock, FileCheck } from 'lucide-react';
-import { Alert, Avatar, Button, Card, EmptyState, Field, Input, PageHeader, Select } from '@/design-system';
+import { Check, X, Clock, FileCheck, UserPlus, CalendarPlus } from 'lucide-react';
+import { Alert, Avatar, Badge, Button, Card, EmptyState, Field, Input, PageHeader, Select } from '@/design-system';
 import { useAuth } from '@/lib/auth';
 import { useAction, useAsync } from '@/lib/hooks';
 import { supabase, must } from '@/lib/supabase';
@@ -9,6 +9,9 @@ import { useCatalog } from '@/lib/catalog';
 import { daysLabel, fullName, hhmm, isoDowMx, todayMx } from '@/lib/format';
 import type { Attendance, Member } from '@/lib/types';
 import { Area, ErrorBox, HealthFlag, Loading } from '@/components/common';
+import type { Lead, MakeupCredit } from '@/lib/escuela';
+
+type Guest = { kind: 'repo'; id: string; name: string; status: string; extra?: string } | { kind: 'prueba'; id: string; name: string; status: string; extra?: string };
 
 type St = Attendance['status'];
 const OPTS: { id: St; label: string; icon: typeof Check; on: string }[] = [
@@ -38,15 +41,28 @@ export default function Asistencia() {
   const groupId = params.get('grupo') ?? todays[0]?.group_id ?? '';
   const group = cat?.groups.find((g) => g.group_id === groupId);
 
-  const { data, error, loading } = useAsync(async () => {
-    if (!groupId) return { members: [] as Member[], existing: [] as Attendance[] };
-    const [enr, att] = await Promise.all([
+  const { data, error, loading, reload } = useAsync(async () => {
+    if (!groupId) return { members: [] as Member[], existing: [] as Attendance[], guests: [] as Guest[] };
+    const [enr, att, repos, trials] = await Promise.all([
       must(supabase.from('enrollments').select('members(*)').eq('group_id', groupId).eq('status', 'activa')),
       must(supabase.from('attendance').select('*').eq('group_id', groupId).eq('date', date)),
+      must(supabase.from('makeup_credits').select('*, members(first_name, last_name, allergies, medical_notes)').eq('used_group_id', groupId).eq('used_date', date).in('status', ['agendada', 'usada', 'vencida'])),
+      must(supabase.from('leads').select('*').eq('trial_group_id', groupId).eq('trial_date', date).in('status', ['prueba_agendada', 'prueba_hecha', 'contactado'])).catch(() => []),
     ]);
     const members = (enr as unknown as { members: Member }[]).map((e) => e.members).sort((a, b) => a.first_name.localeCompare(b.first_name));
-    return { members, existing: att as Attendance[] };
+    const guests: Guest[] = [
+      ...(repos as (MakeupCredit & { members: Member })[]).map((c) => ({ kind: 'repo' as const, id: c.id, name: fullName(c.members), status: c.status === 'usada' ? 'vino' : c.status === 'vencida' ? 'falto' : '', extra: c.members.allergies ?? undefined })),
+      ...(trials as Lead[]).map((l) => ({ kind: 'prueba' as const, id: l.id, name: l.child_name ?? l.name, status: l.trial_attended === true ? 'vino' : l.trial_attended === false ? 'falto' : '', extra: l.child_name ? `Mamá/papá: ${l.name}${l.phone ? ` · ${l.phone}` : ''}` : l.phone ?? undefined })),
+    ];
+    return { members, existing: att as Attendance[], guests };
   }, [groupId, date]);
+  const guestAct = useAction();
+  async function markGuest(g: Guest, vino: boolean) {
+    const r = await guestAct.run(() => g.kind === 'repo'
+      ? must(supabase.rpc('marcar_reposicion', { p_credit: g.id, p_asistio: vino }))
+      : must(supabase.rpc('resultado_prueba', { p_lead: g.id, p_asistio: vino })), vino ? `${g.name.split(' ')[0]}: vino` : `${g.name.split(' ')[0]}: no vino`);
+    if (r) reload();
+  }
 
   useEffect(() => {
     if (!data) return;
@@ -91,9 +107,35 @@ export default function Asistencia() {
       {!groupId ? <EmptyState title="No tienes grupos asignados" description="Pide a tu coordinador que te asigne a un grupo." />
         : error ? <ErrorBox error={error} />
         : loading && !data ? <Loading />
-        : members.length === 0 ? <EmptyState title="Este grupo no tiene alumnos inscritos" />
+        : members.length === 0 && !(data?.guests.length) ? <EmptyState title="Este grupo no tiene alumnos inscritos" />
         : (
           <>
+            {(data?.guests.length ?? 0) > 0 && (
+              <Card className="mb-4">
+                <p className="mb-2 text-lg font-bold">Hoy también vienen</p>
+                <ul className="divide-y divide-border">
+                  {data!.guests.map((g) => (
+                    <li key={g.kind + g.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-semibold">{g.name}</p>
+                          {g.kind === 'repo'
+                            ? <Badge tone="info" size="sm" icon={<CalendarPlus className="h-3.5 w-3.5" />}>Reposición</Badge>
+                            : <Badge tone="brand" size="sm" icon={<UserPlus className="h-3.5 w-3.5" />}>Clase de prueba</Badge>}
+                        </div>
+                        {g.extra && <p className="text-sm text-fg-muted">{g.extra}</p>}
+                      </div>
+                      {g.status ? <Badge tone={g.status === 'vino' ? 'success' : 'danger'} size="sm">{g.status === 'vino' ? '✓ Vino' : '✕ No vino'}</Badge> : (
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="success" loading={guestAct.busy} onClick={() => markGuest(g, true)}>Vino</Button>
+                          <Button size="sm" variant="secondary" loading={guestAct.busy} onClick={() => markGuest(g, false)}>No vino</Button>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
             {alreadySaved && <div className="mb-4"><Alert tone="info" title="Esta lista ya se había guardado">Si cambias algo, vuelve a guardar para corregirla.</Alert></div>}
             <div className="mb-3 flex flex-wrap gap-2">
               <Button variant="secondary" size="sm" onClick={() => setMarks(Object.fromEntries(members.map((m) => [m.id, 'presente'])))}>Todos vinieron</Button>
