@@ -36,6 +36,8 @@ const I = {
   misreservas: { id: 'reservas', label: 'Reservar', icon: 'CalendarCheck', href: '/reservas' },
   mispagos:    { id: 'mispagos', label: 'Pagos y facturas', icon: 'Receipt', href: '/mis-pagos' },
   micuenta:    { id: 'micuenta', label: 'Mi familia', icon: 'CircleUser', href: '/mi-cuenta' },
+  progreso:    { id: 'progreso', label: 'Mi progreso y retos', icon: 'Trophy', href: '/progreso' },
+  progresoclub: { id: 'progresoclub', label: 'Progreso y retos', icon: 'Trophy', href: '/progreso-club' },
 } satisfies Record<string, NavItem>;
 
 const BOOKABLE: DeptCode[] = ['oberfit', 'terapia', 'nutricion', 'natacion'];
@@ -48,7 +50,7 @@ export function navFor(role: AppRole, depts: DeptCode[]): NavGroup[] {
       return [
         { items: [I.consola] },
         { label: 'Operación', items: [I.entrada, I.socios, I.niveles, I.clases, I.reservas, I.asistencia, I.evaluar, I.privadas, I.casilleros] },
-        { label: 'Crecer', items: [I.prospectos, I.retencion] },
+        { label: 'Crecer', items: [I.prospectos, I.retencion, I.progresoclub] },
         { label: 'Dinero', items: [I.cobros, I.facturas, I.planes, I.ventas, I.productos, I.cupones] },
         { label: 'Club', items: [I.analiticas, I.recordatorios, I.mant, I.reportes, I.avisos, I.personal, I.ajustes] },
       ];
@@ -56,30 +58,30 @@ export function navFor(role: AppRole, depts: DeptCode[]): NavGroup[] {
       return [
         { items: [I.consola] },
         { label: 'Dinero', items: [I.cobros, I.facturas, I.planes, I.ventas, I.productos, I.cupones] },
-        { label: 'Socios', items: [I.socios, I.prospectos, I.retencion, I.niveles, I.privadas, I.casilleros, I.recordatorios] },
+        { label: 'Socios', items: [I.socios, I.prospectos, I.retencion, I.progresoclub, I.niveles, I.privadas, I.casilleros, I.recordatorios] },
         { label: 'Club', items: [I.analiticas, I.mant, I.reportes, I.avisos, I.personal, I.ajustes] },
       ];
     case 'recepcion':
       return [
         { items: [I.entrada, I.inicio] },
-        { label: 'Atención', items: [I.socios, I.prospectos, I.cobros, I.reservas, I.ventas, I.privadas, I.casilleros, I.recordatorios, I.retencion] },
+        { label: 'Atención', items: [I.socios, I.prospectos, I.cobros, I.reservas, I.ventas, I.privadas, I.casilleros, I.recordatorios, I.retencion, I.progresoclub] },
         { label: 'Consulta', items: [I.niveles, I.clases, I.avisos, I.mant] },
       ];
     case 'coordinador':
       return [
         { items: [I.inicio] },
         { label: 'Mi departamento', items: [I.niveles, I.clases, I.asistencia, I.evaluar, ...book, I.privadas] },
-        { label: 'Seguimiento', items: [I.socios, I.prospectos, I.retencion, I.recordatorios, I.analiticas, I.avisos, I.reportes, I.mant] },
+        { label: 'Seguimiento', items: [I.socios, I.prospectos, I.retencion, I.progresoclub, I.recordatorios, I.analiticas, I.avisos, I.reportes, I.mant] },
       ];
     case 'coach':
-      return [{ items: [I.midia, I.asistencia, I.evaluar, I.clases, ...book, I.privadas, ...pool] }];
+      return [{ items: [I.midia, I.asistencia, I.evaluar, I.progresoclub, I.clases, ...book, I.privadas, ...pool] }];
     case 'ventas':
       return [{ items: [I.ventas, I.productos, I.prospectos, I.avisos] }];
     case 'mantenimiento':
       return [{ items: [I.mant, I.avisos] }];
     case 'titular':
     default:
-      return [{ items: [I.inicio, I.misclases, I.misreservas, I.mispagos, I.micuenta] }];
+      return [{ items: [I.inicio, I.misclases, I.progreso, I.misreservas, I.mispagos, I.micuenta] }];
   }
 }
 
@@ -116,7 +118,7 @@ const SHORT: Record<string, string> = {
   inicio: 'Inicio', entrada: 'Entrada', socios: 'Socios', cobros: 'Cobros', analiticas: 'Analíticas', ventas: 'Venta',
   asistencia: 'Lista', niveles: 'Grupos', clases: 'Horario', privadas: 'Privadas', productos: 'Inventario', avisos: 'Avisos',
   mant: 'Mantenim.', misclases: 'Clases', reservas: 'Reservar', mispagos: 'Pagos',
-  evaluar: 'Evaluar', prospectos: 'Prospectos', retencion: 'Retención',
+  evaluar: 'Evaluar', prospectos: 'Prospectos', retencion: 'Retención', progreso: 'Progreso', progresoclub: 'Retos',
 };
 
 export function tabsFor(role: AppRole, groups: NavGroup[]): NavItem[] {

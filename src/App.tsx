@@ -36,6 +36,7 @@ const Casilleros = lazy(() => import('@/pages/staff/Casilleros'));
 const Evaluar = lazy(() => import('@/pages/staff/Evaluar'));
 const Prospectos = lazy(() => import('@/pages/staff/Prospectos'));
 const Retencion = lazy(() => import('@/pages/staff/Retencion'));
+const ProgresoClub = lazy(() => import('@/pages/staff/ProgresoClub'));
 const Boleta = lazy(() => import('@/pages/docs/Boleta'));
 const Certificado = lazy(() => import('@/pages/docs/Certificado'));
 const Prueba = lazy(() => import('@/pages/Prueba'));
@@ -44,6 +45,7 @@ const PortalClases = lazy(() => import('@/pages/portal/MisClases'));
 const PortalReservas = lazy(() => import('@/pages/portal/Reservar'));
 const PortalPagos = lazy(() => import('@/pages/portal/MisPagos'));
 const PortalCuenta = lazy(() => import('@/pages/portal/MiCuenta'));
+const PortalProgreso = lazy(() => import('@/pages/portal/Progreso'));
 
 function Home() {
   const { profile } = useAuth();
@@ -117,6 +119,7 @@ function Gate() {
           <Route path="/evaluar" element={staff(<Evaluar />)} />
           <Route path="/prospectos" element={(isFrontOffice || ['ventas', 'coordinador'].includes(profile.role)) ? <Prospectos /> : <Navigate to="/" replace />} />
           <Route path="/retencion" element={(isFrontOffice || profile.role === 'coordinador') ? <Retencion /> : <Navigate to="/" replace />} />
+          <Route path="/progreso-club" element={staff(<ProgresoClub />)} />
           <Route path="/boleta/:id" element={<Boleta />} />
           <Route path="/certificado/:id" element={<Certificado />} />
           <Route path="/analiticas" element={(isManager || profile.role === 'coordinador') ? <Analiticas /> : <Navigate to="/" replace />} />
@@ -126,6 +129,7 @@ function Gate() {
           <Route path="/mis-clases" element={<PortalClases />} />
           <Route path="/mis-pagos" element={<PortalPagos />} />
           <Route path="/mi-cuenta" element={<PortalCuenta />} />
+          <Route path="/progreso" element={<PortalProgreso />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

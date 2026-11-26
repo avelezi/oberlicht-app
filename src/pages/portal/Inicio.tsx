@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CalendarCheck, CalendarDays, Receipt, UserPlus } from 'lucide-react';
+import { CalendarCheck, CalendarDays, Receipt, Trophy, UserPlus } from 'lucide-react';
 import { Alert, Button, Card, CardHeader, EmptyState, PageHeader } from '@/design-system';
 import { useAuth } from '@/lib/auth';
 import { useAsync } from '@/lib/hooks';
@@ -101,8 +101,8 @@ export default function PortalInicio() {
           )}
         </Card>
         <div className="space-y-6">
-          <div className="grid grid-cols-3 gap-3">
-            {[{ l: 'Reservar', i: CalendarCheck, h: '/reservas' }, { l: 'Clases', i: CalendarDays, h: '/mis-clases' }, { l: 'Pagos', i: Receipt, h: '/mis-pagos' }].map((q) => (
+          <div className="grid grid-cols-4 gap-2">
+            {[{ l: 'Reservar', i: CalendarCheck, h: '/reservas' }, { l: 'Clases', i: CalendarDays, h: '/mis-clases' }, { l: 'Progreso', i: Trophy, h: '/progreso' }, { l: 'Pagos', i: Receipt, h: '/mis-pagos' }].map((q) => (
               <button key={q.l} onClick={() => nav(q.h)} className="flex min-h-[88px] flex-col items-center justify-center gap-2 rounded-lg border border-border bg-surface text-base font-semibold hover:bg-primary-soft">
                 <q.i className="h-6 w-6 text-primary" /> {q.l}
               </button>
