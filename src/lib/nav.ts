@@ -94,3 +94,30 @@ export function activeIdFor(pathname: string, groups: NavGroup[]): string {
   if (pathname.startsWith('/grupos')) return 'niveles';
   return 'inicio';
 }
+
+/** Barra inferior en celular: las 4 pantallas que cada rol usa más. El resto vive en «Más». */
+const TABS_BY_ROLE: Record<AppRole, string[]> = {
+  direccion: ['inicio', 'socios', 'cobros', 'analiticas'],
+  administracion: ['inicio', 'cobros', 'socios', 'ventas'],
+  recepcion: ['entrada', 'socios', 'cobros', 'ventas'],
+  coordinador: ['inicio', 'asistencia', 'niveles', 'socios'],
+  coach: ['inicio', 'asistencia', 'clases', 'privadas'],
+  ventas: ['ventas', 'productos', 'avisos'],
+  mantenimiento: ['mant', 'avisos'],
+  titular: ['inicio', 'misclases', 'reservas', 'mispagos'],
+};
+
+/** Nombres cortos para la barra inferior (las etiquetas del menú no caben). */
+const SHORT: Record<string, string> = {
+  inicio: 'Inicio', entrada: 'Entrada', socios: 'Socios', cobros: 'Cobros', analiticas: 'Analíticas', ventas: 'Venta',
+  asistencia: 'Lista', niveles: 'Grupos', clases: 'Horario', privadas: 'Privadas', productos: 'Inventario', avisos: 'Avisos',
+  mant: 'Mantenim.', misclases: 'Clases', reservas: 'Reservar', mispagos: 'Pagos',
+};
+
+export function tabsFor(role: AppRole, groups: NavGroup[]): NavItem[] {
+  const items = groups.flatMap((g) => g.items);
+  return TABS_BY_ROLE[role]
+    .map((id) => items.find((i) => i.id === id))
+    .filter((i): i is NavItem => !!i)
+    .map((i) => ({ ...i, label: SHORT[i.id] ?? i.label }));
+}

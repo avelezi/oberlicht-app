@@ -102,7 +102,14 @@ function Vender() {
         </div>
       </div>
 
-      <Card className="h-fit lg:sticky lg:top-4">
+      {lines.length > 0 && (
+        <button type="button" onClick={() => document.getElementById('ticket')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          className="ob-press ob-fab-bar fixed inset-x-3 z-30 flex h-14 items-center justify-between rounded-xl bg-primary px-4 text-primary-fg shadow-lg lg:hidden">
+          <span className="flex items-center gap-2 text-base font-semibold"><ShoppingCart className="h-5 w-5" aria-hidden /> Ver ticket · {lines.reduce((a, l) => a + l.qty, 0)}</span>
+          <span className="text-lg font-bold ob-num">{money(lines.reduce((a, l) => a + Number(l.p.price) * l.qty, 0))}</span>
+        </button>
+      )}
+      <Card id="ticket" className="h-fit scroll-mt-20 lg:sticky lg:top-4">
         <CardHeader title="Ticket" actions={lines.length > 0 ? <Button size="sm" variant="ghost" icon={<Trash2 className="h-4 w-4" />} onClick={() => setCart({})}>Vaciar</Button> : undefined} />
         {lines.length === 0 ? <p className="py-6 text-center text-base text-fg-muted"><ShoppingCart className="mx-auto mb-2 h-8 w-8" />Toca un producto para agregarlo.</p> : (
           <ul className="mb-4 divide-y divide-border">
@@ -180,7 +187,7 @@ function VentasDia() {
         <label className="text-sm font-semibold">Día<Input className="mt-1" type="date" value={day} max={todayMx()} onChange={(e) => setDay(e.target.value || todayMx())} disabled={!isManager} /></label>
         <Button variant="secondary" className="ml-auto" disabled={data.length === 0} onClick={() => downloadCsv(`ventas-${day}`, data.map((s) => ({ Ticket: s.folio, Hora: timeOnly(s.created_at), Familia: s.families?.name ?? '', Productos: s.sale_items.map((i) => `${i.name} x${i.qty}`).join('; '), Descuento: s.discount, Total: s.total, Forma: methodLabel(s.method), Estado: s.status })))}>Descargar</Button>
       </div>
-      <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-5">
+      <div className="ob-stats mb-4 grid grid-cols-2 gap-3 md:grid-cols-5">
         <StatCard label="Total vendido" value={money(total)} hint={`${valid.length} tickets`} />
         <StatCard label="Efectivo en caja" value={money(by('efectivo'))} />
         <StatCard label="Tarjeta" value={money(by('tarjeta') + by('terminal'))} />

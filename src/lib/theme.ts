@@ -16,7 +16,7 @@ export function resolved(pref: ThemePref = getPref()): 'light' | 'dark' {
 export function applyTheme() {
   const t = resolved();
   document.documentElement.dataset.theme = t;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', t === 'dark' ? '#120D18' : '#2D0A2A');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', t === 'dark' ? '#0C0810' : '#2D0A2A');
 }
 export function setPref(p: ThemePref) {
   try { if (p === 'auto') localStorage.removeItem(KEY); else localStorage.setItem(KEY, p); } catch { /* sin almacenamiento */ }

@@ -65,7 +65,7 @@ function CuponesTab({ canEdit }: { canEdit: boolean }) {
   const active = data.filter((c) => c.active && (!c.ends_on || c.ends_on >= todayMx()) && (c.max_uses == null || c.uses < c.max_uses));
   return (
     <>
-      <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3">
+      <div className="ob-stats mb-4 grid grid-cols-2 gap-3 md:grid-cols-3">
         <StatCard label="Cupones vigentes" value={String(active.length)} />
         <StatCard label="Usos totales" value={String(data.reduce((a, c) => a + c.uses, 0))} />
         <StatCard label="De recomendaciones" value={String(data.filter((c) => c.code.startsWith('REF-')).length)} />

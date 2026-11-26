@@ -127,7 +127,7 @@ export default function Asistencia() {
                 </li>
               ))}
             </ul>
-            <div className="sticky bottom-0 mt-6 -mx-4 border-t border-border bg-surface/95 px-4 py-4 backdrop-blur sm:mx-0 sm:rounded-lg sm:border">
+            <div className="sticky bottom-0 mt-6 -mx-4 ob-glass border-t border-border px-4 py-4 sm:mx-0 sm:rounded-lg sm:border">
               <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
                 <p className="text-base text-fg-muted">{pending > 0 ? `Faltan ${pending} por marcar (se guardarán como «Faltó»)` : '✓ Todos marcados'}</p>
                 <Button size="lg" loading={busy} onClick={save} block>Guardar lista</Button>

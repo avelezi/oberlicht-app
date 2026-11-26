@@ -47,7 +47,7 @@ export default function Cobros() {
     <>
       <PageHeader title="Cobros" description="Cobra en mostrador, revisa adeudos y haz el corte de caja del día."
         actions={isManager && <Button variant="secondary" icon={<CalendarPlus className="h-5 w-5" />} onClick={() => setGen(true)}>Generar mensualidades</Button>} />
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      <div className="ob-stats mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <StatCard label="Por cobrar" value={money0(totalDue)} hint={`${debtors.length} familias`} />
         <StatCard label="Vencido" value={money0(totalOver)} hint={`${overdue.length} familias con atraso`} />
         <StatCard label={day === todayMx() ? 'Cobrado hoy' : `Cobrado el ${dateShort(day)}`} value={money0(approved.reduce((s, p) => s + Number(p.amount), 0))} hint={`${approved.length} pagos`} />

@@ -46,3 +46,61 @@ body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-ins
   --chart-grid: #2E2639; --chart-axis: #B8AEC2;
   --heat-0: #1F1828; --heat-1: #3A1A3A; --heat-2: #5A2156; --heat-3: #7A2C73; --heat-4: #A93597; --heat-5: #C35BB3; --heat-6: #EBBBE3;
 }
+
+/* ───────── Sensación de app nativa en celular ───────── */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+@media (hover: none) {
+  /* Sin selección accidental de texto en botones y menús al tocar */
+  button, [role='button'], [role='tab'], nav a { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+}
+/* iOS hace zoom si un campo tiene letra menor a 16 px */
+@media (max-width: 767px) { input, select, textarea { font-size: 16px !important; } }
+
+.ob-safe-top { padding-top: env(safe-area-inset-top); }
+.ob-safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+/* Espacio para la barra inferior (58 px + zona segura) */
+.ob-main-tabs { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+@media (min-width: 1024px) { .ob-main-tabs { padding-bottom: 1.5rem; } }
+
+.ob-noscroll { scrollbar-width: none; }
+.ob-noscroll::-webkit-scrollbar { display: none; }
+
+/* Respuesta al toque: se hunde un poco, como en las apps */
+.ob-press { transition: transform .12s ease, background-color .15s ease; }
+.ob-press:active { transform: scale(.97); }
+button:not(:disabled):active { transform: scale(.98); }
+button { transition: transform .1s ease, background-color .15s ease, color .15s ease; }
+
+/* Botones de encabezado de pantalla: en celular se reparten el ancho */
+@media (max-width: 639px) {
+  .ob-actions > * { flex: 1 1 auto; justify-content: center; }
+}
+
+/* Indicadores: 2 columnas en celular; si quedan impares, el último ocupa el ancho */
+@media (max-width: 639px) {
+  .ob-stats > :last-child:nth-child(odd) { grid-column: span 2; }
+}
+
+/* Ventanas (Modal) como hoja que sube desde abajo en celular */
+.ob-modal { max-height: calc(100dvh - 48px); overflow: hidden; }
+.ob-modal[open] { animation: ob-pop .18s ease-out; }
+@media (max-width: 639px) {
+  .ob-modal { width: 100%; max-width: 100%; margin: auto 0 0 0; border-radius: 20px 20px 0 0; border-bottom: 0; max-height: 92dvh; }
+  .ob-modal[open] { animation: ob-up .26s cubic-bezier(.2,.8,.2,1); }
+}
+.ob-sheet { animation: ob-up .26s cubic-bezier(.2,.8,.2,1); }
+.ob-fade { animation: ob-fade .2s ease-out; }
+@keyframes ob-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes ob-pop { from { transform: scale(.97); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes ob-fade { from { opacity: 0; } to { opacity: 1; } }
+/* Entrada suave de cada pantalla */
+.ob-page { animation: ob-fade .22s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .ob-modal[open], .ob-sheet, .ob-fade, .ob-page { animation: none; }
+  .ob-press:active, button:not(:disabled):active { transform: none; }
+}
+
+/* Barra flotante (p. ej. «Ver ticket») justo encima de las pestañas */
+.ob-fab-bar { bottom: calc(66px + env(safe-area-inset-bottom)); }
+.ob-glass { background-color: color-mix(in srgb, var(--ob-surface) 94%, transparent); -webkit-backdrop-filter: saturate(1.6) blur(18px); backdrop-filter: saturate(1.6) blur(18px); }

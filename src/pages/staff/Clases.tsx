@@ -33,7 +33,7 @@ export default function Clases() {
           const day = groups.filter((g) => g.weekdays.includes(d)).sort((a, b) => a.start_time.localeCompare(b.start_time));
           if (!day.length && d > 5) return null;
           return (
-            <section key={d} className={`rounded-lg border p-3 ${d === today ? 'border-primary bg-primary-soft/40' : 'border-border bg-surface'}`}>
+            <section key={d} className={`rounded-lg border p-3 ${d === today ? 'border-primary bg-primary-soft' : 'border-border bg-surface'}`}>
               <h2 className="mb-3 text-lg font-bold">{WEEKDAYS_LONG[d]}{d === today && <span className="ml-2 text-sm font-semibold text-primary">Hoy</span>}</h2>
               {day.length === 0 ? <p className="text-sm text-fg-muted">Sin clases</p> : (
                 <ul className="space-y-2">

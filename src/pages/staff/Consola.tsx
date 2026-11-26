@@ -88,7 +88,7 @@ export default function Consola() {
         )}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="ob-stats grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {isFrontOffice ? (
           <>
             <StatCard label="Cobrado este mes" value={money0(kpis.cobrado_mes)} hint={`Hoy: ${money0(kpis.cobrado_hoy)}`} icon={<Wallet className="h-5 w-5" />} />
@@ -132,7 +132,7 @@ export default function Consola() {
             <div className="flex h-40 items-end gap-1.5" role="img" aria-label="Gráfica de cobros diarios">
               {daily.map((d) => (
                 <div key={d.day} className="group relative flex flex-1 flex-col items-center justify-end">
-                  <div className="w-full rounded-t bg-primary/80 transition-colors group-hover:bg-primary" style={{ height: `${Math.max(2, (Number(d.total) / maxDaily) * 100)}%` }} />
+                  <div className="w-full rounded-t bg-primary opacity-80 transition group-hover:opacity-100 group-hover:bg-primary" style={{ height: `${Math.max(2, (Number(d.total) / maxDaily) * 100)}%` }} />
                   <span className="pointer-events-none absolute -top-8 hidden whitespace-nowrap rounded bg-neutral-900 px-2 py-1 text-xs text-white group-hover:block">
                     {d.day.slice(8)}/{d.day.slice(5, 7)} · {money0(d.total)}
                   </span>

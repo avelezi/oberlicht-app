@@ -48,7 +48,7 @@ export default function Facturacion() {
           </Alert>
         </div>
       )}
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      <div className="ob-stats mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <StatCard label="Individuales por timbrar" value={ind.filter((r) => r.status === 'pendiente').length} />
         <StatCard label="Timbradas este mes" value={rows.filter((r) => r.status === 'timbrada').length} />
         <StatCard label="Global a público en general" value={money0(globalTotal)} hint={`${glob.length} pagos sin factura`} />

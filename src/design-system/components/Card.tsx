@@ -6,8 +6,8 @@ export function Card({ className, padded = true, interactive, ...rest }: HTMLAtt
     <div
       className={cn(
         'rounded-lg border border-border bg-surface shadow-xs',
-        padded && 'p-5 sm:p-6',
-        interactive && 'transition-shadow hover:shadow-md cursor-pointer',
+        padded && 'p-4 sm:p-6',
+        interactive && 'ob-press transition-shadow hover:shadow-md cursor-pointer',
         className,
       )}
       {...rest}
@@ -30,14 +30,14 @@ export function CardHeader({ title, description, actions }: { title: ReactNode; 
 /** Indicador clave (KPI). `trend` positivo/negativo se muestra con flecha y texto, no solo color. */
 export function StatCard({ label, value, hint, trend, icon }: { label: string; value: ReactNode; hint?: ReactNode; trend?: { value: string; positive: boolean }; icon?: ReactNode }) {
   return (
-    <Card className="flex flex-col gap-2">
-      <div className="flex items-center justify-between text-sm font-medium text-fg-muted">
-        <span>{label}</span>
-        {icon && <span className="grid h-9 w-9 place-items-center rounded-md bg-primary-soft text-primary">{icon}</span>}
+    <Card className="flex min-w-0 flex-col gap-1 sm:gap-2">
+      <div className="flex items-center justify-between gap-2 text-[13px] font-medium leading-tight text-fg-muted sm:text-sm">
+        <span className="min-w-0">{label}</span>
+        {icon && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary-soft text-primary sm:h-9 sm:w-9">{icon}</span>}
       </div>
-      <div className="font-heading text-3xl font-bold ob-num text-fg">{value}</div>
+      <div className="truncate font-heading text-2xl font-bold ob-num text-fg sm:text-3xl">{value}</div>
       {(trend || hint) && (
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex flex-wrap items-center gap-x-2 text-xs leading-snug sm:text-sm">
           {trend && (
             <span className={cn('font-semibold', trend.positive ? 'text-success-600' : 'text-danger-600')}>
               {trend.positive ? '▲' : '▼'} {trend.value}

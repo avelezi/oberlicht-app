@@ -154,7 +154,7 @@ function Comisiones() {
         {data && data.length > 0 && <Button variant="secondary" className="ml-auto" onClick={() => downloadCsv(`comisiones-${from}-a-${to}`, data.map((c) => ({ Instructor: c.instructor, Clases: c.sesiones, Realizadas: c.realizadas, 'No asistio': c.no_asistio, Ingresos: c.ingresos, Comision: c.comision })))}>Descargar para nómina</Button>}
       </div>
       {error ? <ErrorBox error={error} onRetry={reload} /> : !data ? <Loading /> : <>
-        <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3">
+        <div className="ob-stats mb-4 grid grid-cols-2 gap-3 md:grid-cols-3">
           <StatCard label="Ingresos por privadas" value={money(data.reduce((a, c) => a + Number(c.ingresos), 0))} />
           <StatCard label="Comisiones a pagar" value={money(data.reduce((a, c) => a + Number(c.comision), 0))} />
           <StatCard label="Clases realizadas" value={String(data.reduce((a, c) => a + c.realizadas, 0))} />

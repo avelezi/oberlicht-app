@@ -14,7 +14,7 @@ const alertTone: Record<AlertTone, { box: string; sym: string }> = {
 export function Alert({ tone = 'info', title, children, action }: { tone?: AlertTone; title: string; children?: ReactNode; action?: ReactNode }) {
   const t = alertTone[tone];
   return (
-    <div role={tone === 'danger' ? 'alert' : 'status'} className={cn('flex gap-3 rounded-lg border p-4', t.box)}>
+    <div role={tone === 'danger' ? 'alert' : 'status'} className={cn('flex gap-3 rounded-lg border p-3.5 sm:p-4', t.box)}>
       <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/70 font-bold" aria-hidden>{t.sym}</span>
       <div className="flex-1">
         <p className="font-semibold">{title}</p>
@@ -61,13 +61,18 @@ export function Modal({ open, onClose, title, children, footer, size = 'md' }: {
   const w = size === 'sm' ? 'max-w-md' : size === 'lg' ? 'max-w-3xl' : 'max-w-xl';
   return (
     <dialog ref={ref} onClose={onClose} onCancel={onClose}
-      className={cn('w-[calc(100%-32px)] rounded-xl border border-border bg-surface p-0 text-fg shadow-lg backdrop:bg-neutral-900/50', w)}>
-      <div className="flex items-center justify-between border-b border-border px-6 py-4">
-        <h2 className="text-xl font-bold">{title}</h2>
-        <button onClick={onClose} className="grid min-h-control min-w-control place-items-center rounded-md text-fg-muted hover:bg-surface-sunken" aria-label="Cerrar">✕</button>
+      className={cn('ob-modal w-[calc(100%-32px)] rounded-xl border border-border bg-surface p-0 text-fg shadow-lg backdrop:bg-neutral-900/50', w)}>
+      <div className="ob-modal-inner flex max-h-[inherit] flex-col">
+        <div className="sticky top-0 z-10 shrink-0 border-b border-border bg-surface px-4 pb-3 pt-2 sm:px-6 sm:py-4">
+          <div className="mx-auto mb-2 h-1.5 w-10 rounded-full bg-border-strong sm:hidden" aria-hidden />
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-bold sm:text-xl">{title}</h2>
+            <button onClick={onClose} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface-sunken text-fg-muted hover:bg-surface-sunken sm:h-control sm:w-control sm:rounded-md sm:bg-transparent" aria-label="Cerrar">✕</button>
+          </div>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">{children}</div>
+        {footer && <div className="ob-safe-bottom shrink-0 border-t border-border bg-surface px-4 pt-3 sm:px-6 sm:py-4"><div className="flex flex-col-reverse gap-2 pb-3 sm:flex-row sm:justify-end sm:gap-3 sm:pb-0 [&>*]:w-full sm:[&>*]:w-auto">{footer}</div></div>}
       </div>
-      <div className="px-6 py-5">{children}</div>
-      {footer && <div className="flex flex-col-reverse gap-3 border-t border-border px-6 py-4 sm:flex-row sm:justify-end">{footer}</div>}
     </dialog>
   );
 }

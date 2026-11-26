@@ -128,7 +128,7 @@ export default function Analiticas() {
             <StatCard label="Regresaron" value={r.reingresos} icon={<TrendingUp className="h-5 w-5" />} hint="Habían cancelado y volvieron" />
             <StatCard label="Bajas" value={r.bajas} icon={<UserMinus className="h-5 w-5" />} hint={r.permanencia_bajas_meses != null ? `Duraron ${fmt1(r.permanencia_bajas_meses)} meses en promedio` : undefined} />
             <StatCard label="Antigüedad promedio" value={r.antiguedad_meses == null ? '—' : `${fmt1(r.antiguedad_meses)} m`} icon={<Clock className="h-5 w-5" />} hint="Meses como socio (activos)" />
-            <StatCard label="Visitas" value={r.visitas.toLocaleString('es-MX')} icon={<Activity className="h-5 w-5" />} hint={`${r.visitantes} personas · ${fmt1(r.visitas_por_semana)} por semana c/u`} />
+            <StatCard label="Visitas" value={Number(r.visitas ?? 0).toLocaleString('es-MX')} icon={<Activity className="h-5 w-5" />} hint={`${r.visitantes} personas · ${fmt1(r.visitas_por_semana)} por semana c/u`} />
             <StatCard label="Tiempo de permanencia" value={r.estancia_min == null ? '—' : `${r.estancia_min} min`} icon={<Clock className="h-5 w-5" />} hint="Promedio entre entrada y salida" />
           </div>
 

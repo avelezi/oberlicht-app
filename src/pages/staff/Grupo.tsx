@@ -80,7 +80,7 @@ export default function Grupo() {
           <Button icon={<ClipboardCheck className="h-5 w-5" />} onClick={() => nav(`/asistencia?grupo=${g.group_id}`)}>Pasar lista</Button>
         </>}
       />
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      <div className="ob-stats mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <StatCard label="Inscritos" value={<span className="ob-num">{active.length}/{g.capacity}</span>} hint={<CapacityBar used={active.length} total={g.capacity} />} />
         <StatCard label="Lista de espera" value={waiting.length} hint="Entran solos cuando se libera un lugar" />
         <StatCard label="Clases registradas" value={sessions} hint="Últimos 30 días" />
