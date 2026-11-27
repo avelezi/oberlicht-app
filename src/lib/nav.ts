@@ -24,13 +24,15 @@ const I = {
   ajustes:     { id: 'ajustes', label: 'Configuración', icon: 'Settings', href: '/configuracion' },
   ventas:      { id: 'ventas', label: 'Punto de venta', icon: 'ShoppingCart', href: '/venta' },
   productos:   { id: 'productos', label: 'Productos e inventario', icon: 'Package', href: '/productos' },
-  cupones:     { id: 'cupones', label: 'Promociones y referidos', icon: 'TicketPercent', href: '/cupones' },
+  cupones:     { id: 'cupones', label: 'Promociones, referidos y puntos', icon: 'TicketPercent', href: '/cupones' },
   privadas:    { id: 'privadas', label: 'Clases privadas', icon: 'UserCheck', href: '/privadas' },
   casilleros:  { id: 'casilleros', label: 'Casilleros', icon: 'KeyRound', href: '/casilleros' },
   recordatorios: { id: 'recordatorios', label: 'Recordatorios', icon: 'BellRing', href: '/recordatorios' },
   evaluar:     { id: 'evaluar', label: 'Evaluar habilidades', icon: 'Award', href: '/evaluar' },
   prospectos:  { id: 'prospectos', label: 'Prospectos y pruebas', icon: 'UserPlus', href: '/prospectos' },
   retencion:   { id: 'retencion', label: 'Retención', icon: 'HeartHandshake', href: '/retencion' },
+  encuestas:   { id: 'encuestas', label: 'Satisfacción (encuestas)', icon: 'Smile', href: '/encuestas' },
+  flujo:       { id: 'flujo', label: 'Flujo de caja y pagos', icon: 'Banknote', href: '/flujo' },
   mant:        { id: 'mant', label: 'Mantenimiento', icon: 'Wrench', href: '/mantenimiento' },
   misclases:   { id: 'misclases', label: 'Clases e inscripciones', icon: 'CalendarDays', href: '/mis-clases' },
   misreservas: { id: 'reservas', label: 'Reservar', icon: 'CalendarCheck', href: '/reservas' },
@@ -50,28 +52,28 @@ export function navFor(role: AppRole, depts: DeptCode[]): NavGroup[] {
       return [
         { items: [I.consola] },
         { label: 'Operación', items: [I.entrada, I.socios, I.niveles, I.clases, I.reservas, I.asistencia, I.evaluar, I.privadas, I.casilleros] },
-        { label: 'Crecer', items: [I.prospectos, I.retencion, I.progresoclub] },
-        { label: 'Dinero', items: [I.cobros, I.facturas, I.planes, I.ventas, I.productos, I.cupones] },
+        { label: 'Crecer', items: [I.prospectos, I.retencion, I.encuestas, I.progresoclub] },
+        { label: 'Dinero', items: [I.cobros, I.flujo, I.facturas, I.planes, I.ventas, I.productos, I.cupones] },
         { label: 'Club', items: [I.analiticas, I.recordatorios, I.mant, I.reportes, I.avisos, I.personal, I.ajustes] },
       ];
     case 'administracion':
       return [
         { items: [I.consola] },
-        { label: 'Dinero', items: [I.cobros, I.facturas, I.planes, I.ventas, I.productos, I.cupones] },
-        { label: 'Socios', items: [I.socios, I.prospectos, I.retencion, I.progresoclub, I.niveles, I.privadas, I.casilleros, I.recordatorios] },
+        { label: 'Dinero', items: [I.cobros, I.flujo, I.facturas, I.planes, I.ventas, I.productos, I.cupones] },
+        { label: 'Socios', items: [I.socios, I.prospectos, I.retencion, I.encuestas, I.progresoclub, I.niveles, I.privadas, I.casilleros, I.recordatorios] },
         { label: 'Club', items: [I.analiticas, I.mant, I.reportes, I.avisos, I.personal, I.ajustes] },
       ];
     case 'recepcion':
       return [
         { items: [I.entrada, I.inicio] },
-        { label: 'Atención', items: [I.socios, I.prospectos, I.cobros, I.reservas, I.ventas, I.privadas, I.casilleros, I.recordatorios, I.retencion, I.progresoclub] },
+        { label: 'Atención', items: [I.socios, I.prospectos, I.cobros, I.reservas, I.ventas, I.privadas, I.casilleros, I.recordatorios, I.retencion, I.encuestas, I.progresoclub] },
         { label: 'Consulta', items: [I.niveles, I.clases, I.avisos, I.mant] },
       ];
     case 'coordinador':
       return [
         { items: [I.inicio] },
         { label: 'Mi departamento', items: [I.niveles, I.clases, I.asistencia, I.evaluar, ...book, I.privadas] },
-        { label: 'Seguimiento', items: [I.socios, I.prospectos, I.retencion, I.progresoclub, I.recordatorios, I.analiticas, I.avisos, I.reportes, I.mant] },
+        { label: 'Seguimiento', items: [I.socios, I.prospectos, I.retencion, I.encuestas, I.progresoclub, I.recordatorios, I.analiticas, I.avisos, I.reportes, I.mant] },
       ];
     case 'coach':
       return [{ items: [I.midia, I.asistencia, I.evaluar, I.progresoclub, I.clases, ...book, I.privadas, ...pool] }];
@@ -118,7 +120,7 @@ const SHORT: Record<string, string> = {
   inicio: 'Inicio', entrada: 'Entrada', socios: 'Socios', cobros: 'Cobros', analiticas: 'Analíticas', ventas: 'Venta',
   asistencia: 'Lista', niveles: 'Grupos', clases: 'Horario', privadas: 'Privadas', productos: 'Inventario', avisos: 'Avisos',
   mant: 'Mantenim.', misclases: 'Clases', reservas: 'Reservar', mispagos: 'Pagos',
-  evaluar: 'Evaluar', prospectos: 'Prospectos', retencion: 'Retención', progreso: 'Progreso', progresoclub: 'Retos',
+  evaluar: 'Evaluar', prospectos: 'Prospectos', retencion: 'Retención', encuestas: 'Encuestas', flujo: 'Flujo', progreso: 'Progreso', progresoclub: 'Retos',
 };
 
 export function tabsFor(role: AppRole, groups: NavGroup[]): NavItem[] {

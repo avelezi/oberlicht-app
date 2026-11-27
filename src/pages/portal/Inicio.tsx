@@ -14,6 +14,8 @@ import { ThemedLogo } from '@/components/AppControls';
 import { OfertasLugar } from '@/components/Escuela';
 import { useCatalog } from '@/lib/catalog';
 import type { WaitlistOffer } from '@/lib/escuela';
+import { EncuestaPortal } from '@/components/Encuesta';
+import { PuntosPortal } from '@/components/Puntos';
 
 /** Inicio del portal de familias. Si aún no hay familia registrada, guía el alta en un paso. */
 export default function PortalInicio() {
@@ -70,6 +72,7 @@ export default function PortalInicio() {
       <PageHeader title={`Hola, ${members.find((m) => m.is_titular)?.first_name ?? fam.name}`} description={`${fam.name} · Socio #${fam.number}`} />
       <div className="mb-6 grid gap-3">
         {cat && data && <OfertasLugar offers={data.offers} members={members} cat={cat} onChanged={reloadData} />}
+        <EncuestaPortal />
         {balance > 0 && (
           <Alert tone={overdue ? 'danger' : 'warning'} title={overdue ? `Tienes ${money0(balance)} vencido` : `Tienes ${money0(balance)} por pagar`}
             action={<Button variant="secondary" size="sm" onClick={() => nav('/mis-pagos')}>Ver pagos</Button>}>
@@ -101,6 +104,7 @@ export default function PortalInicio() {
           )}
         </Card>
         <div className="space-y-6">
+          <PuntosPortal familyId={fam.id} compact />
           <div className="grid grid-cols-4 gap-2">
             {[{ l: 'Reservar', i: CalendarCheck, h: '/reservas' }, { l: 'Clases', i: CalendarDays, h: '/mis-clases' }, { l: 'Progreso', i: Trophy, h: '/progreso' }, { l: 'Pagos', i: Receipt, h: '/mis-pagos' }].map((q) => (
               <button key={q.l} onClick={() => nav(q.h)} className="flex min-h-[88px] flex-col items-center justify-center gap-2 rounded-lg border border-border bg-surface text-base font-semibold hover:bg-primary-soft">

@@ -37,6 +37,8 @@ const Evaluar = lazy(() => import('@/pages/staff/Evaluar'));
 const Prospectos = lazy(() => import('@/pages/staff/Prospectos'));
 const Retencion = lazy(() => import('@/pages/staff/Retencion'));
 const ProgresoClub = lazy(() => import('@/pages/staff/ProgresoClub'));
+const Encuestas = lazy(() => import('@/pages/staff/Encuestas'));
+const Flujo = lazy(() => import('@/pages/staff/Flujo'));
 const Boleta = lazy(() => import('@/pages/docs/Boleta'));
 const Certificado = lazy(() => import('@/pages/docs/Certificado'));
 const Prueba = lazy(() => import('@/pages/Prueba'));
@@ -120,6 +122,8 @@ function Gate() {
           <Route path="/prospectos" element={(isFrontOffice || ['ventas', 'coordinador'].includes(profile.role)) ? <Prospectos /> : <Navigate to="/" replace />} />
           <Route path="/retencion" element={(isFrontOffice || profile.role === 'coordinador') ? <Retencion /> : <Navigate to="/" replace />} />
           <Route path="/progreso-club" element={staff(<ProgresoClub />)} />
+          <Route path="/encuestas" element={(isFrontOffice || profile.role === 'coordinador') ? <Encuestas /> : <Navigate to="/" replace />} />
+          <Route path="/flujo" element={manager(<Flujo />)} />
           <Route path="/boleta/:id" element={<Boleta />} />
           <Route path="/certificado/:id" element={<Certificado />} />
           <Route path="/analiticas" element={(isManager || profile.role === 'coordinador') ? <Analiticas /> : <Navigate to="/" replace />} />

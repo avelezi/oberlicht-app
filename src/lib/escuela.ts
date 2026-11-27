@@ -62,6 +62,7 @@ export const ACTION_LABEL: Record<string, string> = {
   boleta_coach: 'Boleta o nota del coach',
   llamada_regreso: 'Invitar a regresar',
   oferta_retencion: 'Ofrecer plan para quedarse',
+  llamada_satisfaccion: 'Llamar por su calificación baja',
 };
 
 export const BAJA_MOTIVOS = [
