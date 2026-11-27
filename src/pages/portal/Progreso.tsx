@@ -10,6 +10,7 @@ import type { Member } from '@/lib/types';
 import { ErrorBox, Loading } from '@/components/common';
 import { Bars } from '@/components/charts';
 import { Medallas, RetoCard, Tabla, TiraSemanas } from '@/components/Progreso';
+import { PuntosPortal } from '@/components/Puntos';
 import { CATEGORIA_CORTA, KUDOS, dias, semanas, type Categoria, type FilaConstancia, type FilaReto, type Kudo, type MiProgreso, type RetoClub } from '@/lib/progreso';
 
 const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
@@ -35,6 +36,7 @@ export default function Progreso() {
         </div>
       )}
       <ProgresoMiembro key={member.id} member={member} />
+      <div className="mt-6"><PuntosPortal familyId={mine.fam.id} /></div>
     </>
   );
 }
