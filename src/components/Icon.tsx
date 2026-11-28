@@ -1,13 +1,13 @@
 import {
-  Award, BarChart3, BellRing, CalendarCheck, CalendarDays, CircleUser, ClipboardCheck, FileText, HeartHandshake, IdCard, KeyRound, Layers,
+  Award, BarChart3, Banknote, Smile, BellRing, CalendarCheck, CalendarDays, CircleUser, ClipboardCheck, FileText, HeartHandshake, IdCard, KeyRound, Layers,
   LayoutDashboard, LineChart, Megaphone, Package, Receipt, ScanLine, Settings, ShoppingCart, Stethoscope, Sun, Tags,
-  TicketPercent, Trophy, UserCheck, UserPlus, Users, Wallet, Wrench, type LucideIcon,
+  TicketPercent, Trophy, UserCheck, UserPlus, Users, Wallet, Wrench, BookOpen, Sparkles, GraduationCap, CalendarHeart, CalendarRange, House, type LucideIcon,
 } from 'lucide-react';
 
 const MAP: Record<string, LucideIcon> = {
-  Award, BarChart3, BellRing, CalendarCheck, CalendarDays, CircleUser, ClipboardCheck, FileText, HeartHandshake, IdCard, KeyRound, Layers,
+  Award, BarChart3, Banknote, Smile, BellRing, CalendarCheck, CalendarDays, CircleUser, ClipboardCheck, FileText, HeartHandshake, IdCard, KeyRound, Layers,
   LayoutDashboard, LineChart, Megaphone, Package, Receipt, ScanLine, Settings, ShoppingCart, Stethoscope, Sun, Tags,
-  TicketPercent, Trophy, UserCheck, UserPlus, Users, Wallet, Wrench,
+  TicketPercent, Trophy, UserCheck, UserPlus, Users, Wallet, Wrench, BookOpen, Sparkles, GraduationCap, CalendarHeart, CalendarRange, House,
 };
 
 /** Íconos del menú lateral (el design system pide renderIcon con nombres de lucide). */
