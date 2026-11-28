@@ -1,5 +1,5 @@
 -- ════════════════════════════════════════════════════════════════════
--- Borra TODOS los datos de demostración (01_personal_demo.sql, 02_datos_demo.sql y 03_demo_escuela_y_progreso.sql).
+-- Borra TODOS los datos de demostración (01_personal_demo.sql, 02_datos_demo.sql, 03_demo_escuela_y_progreso.sql y 04_demo_academia.sql).
 -- No toca familias, personal ni catálogo reales: solo lo marcado como demo
 -- (familias DEMO-###, correos @demo.oberlicht.mx y los ids en settings 'demo_data').
 -- ════════════════════════════════════════════════════════════════════
@@ -20,6 +20,10 @@ begin
   -- Escuela, retención y progreso (03_demo_escuela_y_progreso.sql)
   delete from public.challenges where id in (select (jsonb_array_elements_text(ids->'challenges'))::uuid);
   delete from public.leads where id in (select (jsonb_array_elements_text(ids->'leads'))::uuid) or notes like '[DEMO]%';
+
+  -- Academia (04_demo_academia.sql): rutinas y eventos demo; lo del personal demo se va con sus cuentas
+  delete from public.routines where id in (select (jsonb_array_elements_text(ids->'routines'))::uuid);
+  delete from public.events where id in (select (jsonb_array_elements_text(ids->'events'))::uuid);
 
   -- Familias demo: arrastra socios, inscripciones, entradas, asistencia, cargos, pagos, casilleros rentados, privadas, referidos…
   delete from public.families where external_id like 'DEMO-%';
