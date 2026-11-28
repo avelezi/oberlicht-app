@@ -43,6 +43,8 @@ const Programas = lazy(() => import('@/pages/staff/Programas'));
 const Eventos = lazy(() => import('@/pages/staff/Eventos'));
 const EscuelaCoaches = lazy(() => import('@/pages/staff/EscuelaCoaches'));
 const PortalEnCasa = lazy(() => import('@/pages/portal/EnCasa'));
+const Encuestas = lazy(() => import('@/pages/staff/Encuestas'));
+const Flujo = lazy(() => import('@/pages/staff/Flujo'));
 const Boleta = lazy(() => import('@/pages/docs/Boleta'));
 const Certificado = lazy(() => import('@/pages/docs/Certificado'));
 const Prueba = lazy(() => import('@/pages/Prueba'));
@@ -132,6 +134,8 @@ function Gate() {
           <Route path="/eventos" element={staff(<Eventos />)} />
           <Route path="/escuela-coaches" element={staff(<EscuelaCoaches />)} />
           <Route path="/en-casa" element={<PortalEnCasa />} />
+          <Route path="/encuestas" element={(isFrontOffice || profile.role === 'coordinador') ? <Encuestas /> : <Navigate to="/" replace />} />
+          <Route path="/flujo" element={manager(<Flujo />)} />
           <Route path="/boleta/:id" element={<Boleta />} />
           <Route path="/certificado/:id" element={<Certificado />} />
           <Route path="/analiticas" element={(isManager || profile.role === 'coordinador') ? <Analiticas /> : <Navigate to="/" replace />} />

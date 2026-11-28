@@ -1,5 +1,6 @@
 -- ════════════════════════════════════════════════════════════════════
--- Borra TODOS los datos de demostración (01_personal_demo.sql, 02_datos_demo.sql, 03_demo_escuela_y_progreso.sql y 04_demo_academia.sql).
+-- Borra TODOS los datos de demostración (01_personal_demo.sql, 02_datos_demo.sql, 03_demo_escuela_y_progreso.sql,
+-- 04_demo_encuestas_puntos_flujo.sql y 05_demo_academia.sql).
 -- No toca familias, personal ni catálogo reales: solo lo marcado como demo
 -- (familias DEMO-###, correos @demo.oberlicht.mx y los ids en settings 'demo_data').
 -- ════════════════════════════════════════════════════════════════════
@@ -17,11 +18,18 @@ begin
   delete from public.sales where id in (select (jsonb_array_elements_text(ids->'sales'))::uuid);
   delete from public.invoices where id in (select (jsonb_array_elements_text(ids->'invoices'))::uuid);
 
+  -- Encuestas, puntos y flujo (04_demo_encuestas_puntos_flujo.sql). Respuestas y puntos se van con las familias.
+  delete from public.payables where id in (select (jsonb_array_elements_text(ids->'payables'))::uuid);
+  delete from public.surveys where id in (select (jsonb_array_elements_text(ids->'surveys'))::uuid);
+  if coalesce((reg->>'flujo_saldo_demo')::boolean, false) then
+    update public.settings set value = value || '{"saldo_inicial":null,"fecha_saldo":null}' where key = 'flujo';
+  end if;
+
   -- Escuela, retención y progreso (03_demo_escuela_y_progreso.sql)
   delete from public.challenges where id in (select (jsonb_array_elements_text(ids->'challenges'))::uuid);
   delete from public.leads where id in (select (jsonb_array_elements_text(ids->'leads'))::uuid) or notes like '[DEMO]%';
 
-  -- Academia (04_demo_academia.sql): rutinas y eventos demo; lo del personal demo se va con sus cuentas
+  -- Academia (05_demo_academia.sql): rutinas y eventos demo; lo del personal demo se va con sus cuentas
   delete from public.routines where id in (select (jsonb_array_elements_text(ids->'routines'))::uuid);
   delete from public.events where id in (select (jsonb_array_elements_text(ids->'events'))::uuid);
 

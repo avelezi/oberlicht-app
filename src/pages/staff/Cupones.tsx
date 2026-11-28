@@ -8,6 +8,7 @@ import { supabase, must } from '@/lib/supabase';
 import { dateShort, money, todayMx } from '@/lib/format';
 import { ErrorBox, Loading } from '@/components/common';
 import { FamilyPicker, type PickedFamily } from '@/components/FamilyPicker';
+import { PuntosAdmin } from '@/components/Puntos';
 
 interface Coupon {
   id: string; code: string; description: string; kind: 'porcentaje' | 'monto'; value: number; applies_to: string;
@@ -35,9 +36,10 @@ export default function Cupones() {
   const [tab, setTab] = useState('cupones');
   return (
     <>
-      <PageHeader title="Promociones y referidos" description="Cupones de descuento para mensualidades, inscripciones, tienda y más. Las familias que recomiendan ganan un cupón cuando la familia nueva paga por primera vez." />
-      <Tabs className="mb-4" value={tab} onChange={setTab} items={[{ id: 'cupones', label: 'Cupones' }, { id: 'referidos', label: 'Recomendaciones' }, { id: 'canjes', label: 'Historial de uso' }]} />
+      <PageHeader title="Promociones, referidos y puntos" description="Cupones de descuento, recomendaciones entre familias y Puntos Oberlicht: se ganan con constancia, medallas, retos, recomendaciones y encuestas, y se canjean en barra y tienda." />
+      <Tabs className="mb-4" value={tab} onChange={setTab} items={[{ id: 'cupones', label: 'Cupones' }, { id: 'puntos', label: 'Puntos' }, { id: 'referidos', label: 'Recomendaciones' }, { id: 'canjes', label: 'Historial de uso' }]} />
       {tab === 'cupones' && <CuponesTab canEdit={isManager} />}
+      {tab === 'puntos' && <PuntosAdmin />}
       {tab === 'referidos' && <Referidos />}
       {tab === 'canjes' && <Canjes />}
     </>
